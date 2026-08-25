@@ -67,7 +67,7 @@ h1{font-family:"Frank Ruhl Libre",serif; font-weight:600; font-size:32px; margin
 .pin.open:hover, .pin.open.active{background:var(--open); box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .pin{cursor:grab; touch-action:none}
 .pin.dragging{cursor:grabbing; transform:translate(-50%,-50%) scale(1.8); z-index:10; box-shadow:0 3px 10px rgba(0,0,0,.5)}
-.pin.moved::after{content:""; position:absolute; top:-3px; left:-3px; width:8px; height:8px; border-radius:50%; background:var(--accent); border:1.5px solid var(--card)}
+.pin.moved::after{content:""; position:absolute; bottom:-5px; left:50%; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:var(--accent); border:1.5px solid var(--card)}
 .stage-hint{font-size:11.5px; color:var(--ink-soft); margin-top:8px; text-align:center}
 .reassign-wrap{margin:12px 0; position:relative}
 .reassign-wrap label{display:block; font-size:12px; color:var(--ink-soft); margin-bottom:5px}
@@ -241,7 +241,7 @@ const GROUND=[
  {x:54.17,y:46.92,loc:'מסדרון ליד המטבח — קיר',item:'טרם נבחר',qty:2,store:'open',price:null,status:'open',note:''},
  {x:59.2,y:39.1,loc:'דלת יציאת המטבח (פנימי) — 4 עיגולים לא מזוהים בתוכנית',item:'טרם נבחר',qty:1,store:'open',price:null,status:'open',note:'⚠️ יש סימון בתוכנית בלי גובה/הערה — לברר עם נופר מה זה בדיוק'},
  {x:22.98,y:46.09,loc:'חדר שינה 2 — ליד המיטה',item:'טרם נבחר',qty:2,store:'open',price:null,status:'open',note:'⚠️ ייתכן שזו תאורת ארון ולא תאורת מיטה — לוודא עם נופר'},
- {x:30.3,y:55.0,loc:'ממ"ד — ליד המיטה',item:'טרם נבחר',qty:1,store:'open',price:null,status:'open',note:''},
+ {x:35.0,y:70.0,loc:'ממ"ד — ליד המיטה',item:'טרם נבחר',qty:1,store:'open',price:null,status:'open',note:''},
  {x:64.97,y:68.0,loc:'חדר אורחים — כללי',item:'סילו',qty:1,store:'ida',price:263,status:'done',note:'נבחר: נופר ✓',img:'silo',link:'https://store.ida-home.co.il/product/wall-light-silo'},
  {x:57.8,y:76.65,loc:'חדר אורחים/הורים — ליד המיטה',item:'דונטלה',qty:2,store:'ida',price:263,status:'pending',note:'סטטוס ממתין (יעל, "none")',img:'donatella',link:'https://store.ida-home.co.il/product/%d7%92%d7%95%d7%a3-%d7%aa%d7%90%d7%95%d7%a8%d7%94-%d7%93%d7%95%d7%a0%d7%98%d7%9c%d7%94'},
  {x:55.98,y:75.66,loc:'מקלחת אורחים — תאורת מראה',item:'טרם נבחר',qty:1,store:'open',price:null,status:'open',note:''},
@@ -251,12 +251,12 @@ const GROUND=[
  {x:19.13,y:82.06,loc:'חוץ — כניסה מקורה',item:'בריאן',qty:1,store:'ida',price:263,status:'pending',note:'אותו פריט',img:'brian',link:'https://store.ida-home.co.il/product/%d7%92%d7%95%d7%a3-%d7%aa%d7%90%d7%95%d7%a8%d7%94-%d7%91%d7%a8%d7%99%d7%90%d7%9f'},
  {x:25.55,y:14.57,loc:'תלוי — מעל שולחן הסלון',item:'טרם נבחר',qty:1,store:'turkiz',price:null,status:'pending',note:'לפי התוכנית שלך'},
  {x:62.25,y:17.42,loc:'תלוי — מעל פינת האוכל',item:'טרם נבחר',qty:4,store:'turkiz',price:null,status:'pending',note:'מתוקן: 4 יח׳ ברצף (66/60/60/60), לא 1 — אושר בסקירת התוכנית 25.8'},
- {x:57.0,y:40.0,loc:'תלויים — מעל האי',item:'קרמן, קוטר 25',qty:3,store:'ida',price:289,status:'done',note:'נבחר פה־אחד ✓ (⚠️ לא נמצא עיגול מפורש בתוכנית — מיקום משוער לפי קו האי)',img:'karman',link:'https://store.ida-home.co.il/product/%d7%92%d7%95%d7%a3-%d7%aa%d7%90%d7%95%d7%a8%d7%94-%d7%a7%d7%a8%d7%9e%d7%9f'},
+ {x:35.0,y:28.8,loc:'תלויים — מעל האי',item:'קרמן, קוטר 25',qty:3,store:'ida',price:289,status:'done',note:'נבחר פה־אחד ✓ (⚠️ לא נמצא עיגול מפורש בתוכנית מעל האי — מיקום לפי מרכז האי עצמו)',img:'karman',link:'https://store.ida-home.co.il/product/%d7%92%d7%95%d7%a3-%d7%aa%d7%90%d7%95%d7%a8%d7%94-%d7%a7%d7%a8%d7%9e%d7%9f'},
  {x:32.49,y:49.04,loc:'מאווררי תקרה (קרקע)',item:'טרם נבחר',qty:2,store:'open',price:null,status:'open',note:''},
- {x:20.63,y:24.69,loc:'פס צבירה (מסילה)',item:'טרם נבחר',qty:2,store:'open',price:250,status:'open',note:'למשל "רורי", מחסני תאורה'},
- {x:28.63,y:24.69,loc:'ספוטים לפס הצבירה',item:'פוקוס LED GU10, עץ אגוז',qty:9,store:'ali',price:64,status:'done',note:'נבחר — מנופר ✓',img:'focus_gu10',link:'https://he.aliexpress.com/item/1005009686290644.html'},
+ {x:34.6,y:24.1,loc:'פס צבירה (מסילה)',item:'טרם נבחר',qty:2,store:'open',price:250,status:'open',note:'למשל "רורי", מחסני תאורה'},
+ {x:34.6,y:33.4,loc:'ספוטים לפס הצבירה',item:'פוקוס LED GU10, עץ אגוז',qty:9,store:'ali',price:64,status:'done',note:'נבחר — מנופר ✓',img:'focus_gu10',link:'https://he.aliexpress.com/item/1005009686290644.html'},
  {x:58.0,y:55.0,loc:'צמודי תקרה — מקלחות/מסדרון',item:'DUTRIEUX, שחור',qty:5,store:'ali',price:28,status:'done',note:'נבחר — מנופר ✓',img:'dutrieux',link:'https://he.aliexpress.com/item/1005009546688217.html'},
- {x:20.2,y:49.64,loc:'עמודי תאורה — שביל מערבי',item:'טרם נבחר',qty:4,store:'open',price:null,status:'open',note:'⚠️ בתוכנית נראים 6 עמודים לאורך השביל, לא 4 — לוודא כמות עם נופר'},
+ {x:6.78,y:4.79,loc:'עמודי תאורה — שביל מערבי',item:'טרם נבחר',qty:4,store:'open',price:null,status:'open',note:'4 עמודים אותרו לאורך השביל המערבי, תואם לכמות'},
 ];
 const UPPER=[
  {x:33.99,y:7.32,loc:'מרפסת — תאורה נמוכה',item:'טרם נבחר',qty:3,store:'open',price:null,status:'open',note:'מחסני תאורה'},
