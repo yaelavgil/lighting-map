@@ -120,7 +120,8 @@ h1{font-family:"Rubik","Heebo",sans-serif; font-weight:800; font-size:32px; marg
 .combo-name{font-weight:600; font-size:13px}
 .combo-meta{font-size:11.5px; color:var(--ink-soft)}
 .combo-empty{padding:10px; font-size:12.5px; color:var(--ink-soft); text-align:center}
-.modal-actions{display:flex; gap:8px; margin-top:6px}
+.modal-actions{display:flex; gap:8px; margin-top:6px; flex-wrap:wrap}
+.modal-actions .reset-btn{flex:1 1 auto; min-width:120px}
 .reset-btn{
   flex:1; text-align:center; background:var(--stage); color:var(--ink-soft); border:1px solid var(--line);
   border-radius:10px; padding:9px; font-size:12.5px; cursor:pointer; font-family:"Heebo";
@@ -354,6 +355,19 @@ function addCustomPoint(x,y){
   const entry={id,x:Math.round(x*10)/10,y:Math.round(y*10)/10,loc:'נקודה חדשה — לחצו לעריכה',item:'טרם נבחר',qty:1,store:'open',price:null,img:null,link:null,note:'',status:'open'};
   customPoints[floor].push(entry);
   saveCustom(); renderList();
+  focusItem(customKey(floor,id)); openModal(customKey(floor,id));
+}
+function duplicatePoint(k){
+  const d=effective(k);
+  const id=Date.now()+'-'+Math.floor(Math.random()*10000);
+  const nx=Math.max(1,Math.min(99,(d.x||50)+3));
+  const ny=Math.max(1,Math.min(99,(d.y||50)+3));
+  const entry={id, x:Math.round(nx*10)/10, y:Math.round(ny*10)/10,
+    loc:d.loc+' (עותק)', item:d.item, qty:d.qty, store:d.store, price:d.price,
+    img:d.img||null, link:d.link||null, note:d.note||'', status:d.status,
+    type:d.type||'אחר', room:d.room||'אחר'};
+  customPoints[floor].push(entry);
+  saveCustom(); closeModal(); renderList();
   focusItem(customKey(floor,id)); openModal(customKey(floor,id));
 }
 
@@ -649,11 +663,13 @@ function openModal(k){
       </div>
     </div>
     <div class="modal-actions">
+      <button class="reset-btn" id="dupBtn">⎘ שכפלו נקודה</button>
       ${!custom ? `<button class="reset-btn" id="resetPosBtn" ${overrides.pos[k]?'':'disabled'}>↺ אפס מיקום על המפה</button>` : ''}
       ${!custom ? `<button class="reset-btn" id="resetAsgBtn" ${overrides.assign[k]!==undefined?'':'disabled'}>↺ בטל שיבוץ מחדש</button>` : ''}
       ${custom ? `<button class="reset-btn" id="deleteBtn" style="color:var(--open); border-color:var(--open)">🗑 מחקו נקודה</button>` : ''}
     </div>
   `;
+  modalBody.querySelector('#dupBtn').addEventListener('click',()=>{ duplicatePoint(k); });
   if(custom){
     modalBody.querySelector('#locInput').addEventListener('change',(e)=>{
       const cp=baseForKey(k); cp.loc=e.target.value.trim()||'נקודה חדשה'; saveCustom(); renderList();
