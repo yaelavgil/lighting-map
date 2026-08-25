@@ -60,8 +60,16 @@ h1{font-family:"Rubik","Heebo",sans-serif; font-weight:800; font-size:32px; marg
 .typecard-items{font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.5}
 
 .stage{position:relative; margin-top:22px; background:var(--stage); border-radius:18px; padding:18px; border:1px solid var(--line)}
-.stage-img-wrap{position:relative; width:100%; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.stage-img-wrap{position:relative; width:100%; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15); touch-action:none}
+.stage-img-wrap.zoomed{cursor:grab}
+.stage-img-wrap.zoomed.panning{cursor:grabbing}
+.zoom-inner{position:relative; transform-origin:0 0}
+.zoom-inner.animate{transition:transform .18s ease-out}
 .stage-img-wrap img{display:block; width:100%; height:auto}
+.zoom-toolbar{position:absolute; top:10px; inset-inline-end:10px; display:flex; align-items:center; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px; box-shadow:0 2px 8px rgba(0,0,0,.2); z-index:6}
+.zoom-toolbar button{width:28px; height:28px; border:0; border-radius:7px; background:transparent; color:var(--ink); font-size:16px; font-weight:700; cursor:pointer; font-family:"Heebo"}
+.zoom-toolbar button:hover{background:var(--accent-soft); color:var(--accent)}
+.zoom-pct{font-size:11px; color:var(--ink-soft); font-variant-numeric:tabular-nums; padding:0 4px; min-width:34px; text-align:center}
 .pin{
   position:absolute; transform:translate(-50%,-50%); width:17px; height:17px; border-radius:50%;
   display:flex; align-items:center; justify-content:center; font-size:8.5px; font-weight:700; color:#fff;
@@ -232,10 +240,18 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 
 <div class="stage">
   <div class="stage-img-wrap" id="stageImgWrap">
-    <img id="planImg" src="" alt="תוכנית קומה">
-    <div id="pins"></div>
+    <div class="zoom-inner" id="zoomInner">
+      <img id="planImg" src="" alt="תוכנית קומה">
+      <div id="pins"></div>
+    </div>
+    <div class="zoom-toolbar">
+      <button id="zoomInBtn" aria-label="הגדילו">＋</button>
+      <button id="zoomOutBtn" aria-label="הקטינו">－</button>
+      <button id="zoomResetBtn" aria-label="איפוס זום">⤢</button>
+      <span id="zoomPct" class="zoom-pct">100%</span>
+    </div>
   </div>
-  <div class="stage-hint">גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
+  <div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
 </div>
 
 <div class="list-headrow">
@@ -330,6 +346,41 @@ let activeKey=null;
 const planImg=document.getElementById('planImg');
 const pinsEl=document.getElementById('pins');
 const stageWrap=document.getElementById('stageImgWrap');
+const zoomInner=document.getElementById('zoomInner');
+const ZOOM_MIN=1, ZOOM_MAX=6;
+let zoom=1, panX=0, panY=0;
+function clientToPct(cx,cy){
+  const rect=stageWrap.getBoundingClientRect();
+  let x=((cx-rect.left)-panX)/(rect.width*zoom)*100;
+  let y=((cy-rect.top)-panY)/(rect.height*zoom)*100;
+  return {x:Math.max(1,Math.min(99,x)), y:Math.max(1,Math.min(99,y))};
+}
+function clampPan(){
+  const rect=stageWrap.getBoundingClientRect();
+  const maxX=(zoom-1)*rect.width, maxY=(zoom-1)*rect.height;
+  panX=Math.min(0,Math.max(-maxX,panX));
+  panY=Math.min(0,Math.max(-maxY,panY));
+}
+function applyZoom(animate){
+  clampPan();
+  zoomInner.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;
+  zoomInner.classList.toggle('animate',!!animate);
+  stageWrap.classList.toggle('zoomed', zoom>1.001);
+  const pctEl=document.getElementById('zoomPct');
+  if(pctEl) pctEl.textContent=Math.round(zoom*100)+'%';
+}
+function setZoom(newZoom, cx, cy){
+  const rect=stageWrap.getBoundingClientRect();
+  const px = cx!=null ? cx-rect.left : rect.width/2;
+  const py = cy!=null ? cy-rect.top : rect.height/2;
+  const prevZoom=zoom;
+  newZoom=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,newZoom));
+  const imgX=(px-panX)/prevZoom, imgY=(py-panY)/prevZoom;
+  zoom=newZoom;
+  panX=px-imgX*zoom; panY=py-imgY*zoom;
+  applyZoom(true);
+}
+function resetZoom(){ zoom=1; panX=0; panY=0; applyZoom(true); }
 const listEl=document.getElementById('list');
 const candListEl=document.getElementById('candList');
 const listTitle=document.getElementById('listTitle');
@@ -556,6 +607,7 @@ function renderPins(){
 function render(){
   planImg.src = floor==='ground'?GROUND_IMG:UPPER_IMG;
   listTitle.textContent = 'פירוט — '+(floor==='ground'?'קומת קרקע':'קומה עליונה');
+  resetZoom();
   renderList();
 }
 function focusItem(k){
@@ -576,15 +628,15 @@ function paint(){
 
 // --- dragging pins to reposition ---
 function attachDrag(pin,k){
-  let startX,startY,moved=false,rect;
+  let startX,startY,moved=false;
   function onMove(e){
     const cx=(e.touches?e.touches[0].clientX:e.clientX), cy=(e.touches?e.touches[0].clientY:e.clientY);
     const dx=cx-startX, dy=cy-startY;
     if(Math.abs(dx)+Math.abs(dy)>5) moved=true;
     if(!moved) return;
     pin.classList.add('dragging');
-    let nx=((cx-rect.left)/rect.width)*100, ny=((cy-rect.top)/rect.height)*100;
-    nx=Math.max(1,Math.min(99,nx)); ny=Math.max(1,Math.min(99,ny));
+    const p=clientToPct(cx,cy);
+    let nx=p.x, ny=p.y;
     pin.style.left=nx+'%'; pin.style.top=ny+'%';
     pin._nx=nx; pin._ny=ny;
   }
@@ -605,7 +657,7 @@ function attachDrag(pin,k){
   }
   pin.addEventListener('pointerdown',(e)=>{
     e.preventDefault();
-    rect=stageWrap.getBoundingClientRect();
+    e.stopPropagation();
     startX=e.clientX; startY=e.clientY; moved=false;
     document.addEventListener('pointermove',onMove);
     document.addEventListener('pointerup',onUp,{once:true});
@@ -774,11 +826,34 @@ function setAddMode(on){
 addBtn.addEventListener('click',()=>setAddMode(!addMode));
 planImg.addEventListener('click',(e)=>{
   if(!addMode) return;
-  const rect=stageWrap.getBoundingClientRect();
-  const x=Math.max(1,Math.min(99, ((e.clientX-rect.left)/rect.width)*100));
-  const y=Math.max(1,Math.min(99, ((e.clientY-rect.top)/rect.height)*100));
+  const p=clientToPct(e.clientX,e.clientY);
   setAddMode(false);
-  addCustomPoint(x,y);
+  addCustomPoint(p.x,p.y);
+});
+
+document.getElementById('zoomInBtn').addEventListener('click',()=>setZoom(zoom*1.4));
+document.getElementById('zoomOutBtn').addEventListener('click',()=>setZoom(zoom/1.4));
+document.getElementById('zoomResetBtn').addEventListener('click', resetZoom);
+stageWrap.addEventListener('wheel',(e)=>{
+  e.preventDefault();
+  const factor = e.deltaY<0 ? 1.18 : 1/1.18;
+  setZoom(zoom*factor, e.clientX, e.clientY);
+},{passive:false});
+
+let panStart=null;
+stageWrap.addEventListener('pointerdown',(e)=>{
+  if(zoom<=1.001 || addMode || e.target.closest('.pin')) return;
+  panStart={x:e.clientX,y:e.clientY,px:panX,py:panY};
+  stageWrap.classList.add('panning');
+});
+window.addEventListener('pointermove',(e)=>{
+  if(!panStart) return;
+  panX=panStart.px+(e.clientX-panStart.x);
+  panY=panStart.py+(e.clientY-panStart.y);
+  applyZoom(false);
+});
+window.addEventListener('pointerup',()=>{
+  if(panStart){ panStart=null; stageWrap.classList.remove('panning'); }
 });
 
 render();
