@@ -287,7 +287,7 @@ const listTitle=document.getElementById('listTitle');
 const KEY='eshel57-lighting-map-v2';
 const OKEY='eshel57-lighting-overrides-v1';
 let saved={}; try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
-let overrides={pos:{},assign:{}}; try{overrides=Object.assign({pos:{},assign:{}},JSON.parse(localStorage.getItem(OKEY)||'{}'))}catch(e){}
+let overrides={pos:{},assign:{},link:{}}; try{overrides=Object.assign({pos:{},assign:{},link:{}},JSON.parse(localStorage.getItem(OKEY)||'{}'))}catch(e){}
 function saveOverrides(){ localStorage.setItem(OKEY,JSON.stringify(overrides)); }
 
 const CKEY='eshel57-lighting-custom-v1';
@@ -339,6 +339,7 @@ function effective(k){
     if(asg===null){ d.item='טרם נבחר'; d.store='open'; d.price=null; d.img=null; d.link=null; d.status='open'; d.note=base.note||''; }
     else{ const c=CATALOG[asg]; d={...d, item:c.item, store:c.store, price:c.price, img:c.img, link:c.link, status:'done'}; }
   }
+  if(overrides.link[k]!==undefined){ d.link = overrides.link[k] || null; }
   return d;
 }
 
@@ -503,7 +504,11 @@ function openModal(k){
     ${d.note? `<div class="mnote">${d.note}</div>`:''}
     ${d.link? `<a class="buy-btn" href="${d.link}" target="_blank" rel="noopener">לצפייה ורכישה ←</a>` : `<div class="buy-btn disabled">אין עדיין לינק למוצר</div>`}
     <div class="reassign-wrap">
-      <label>שבצו כאן פריט אחר (הקלידו לחיפוש):</label>
+      <label>קישור למוצר (אפשר להדביק לינק ישירות):</label>
+      <input type="url" class="combo-input" id="linkInput" autocomplete="off" value="${(d.link||'').replace(/"/g,'&quot;')}" placeholder="https://...">
+    </div>
+    <div class="reassign-wrap">
+      <label>או שבצו כאן פריט קיים (הקלידו לחיפוש):</label>
       <div class="combo">
         <input type="text" class="combo-input" id="comboInput" autocomplete="off" placeholder="חפשו לפי שם...">
         <div class="combo-list" id="comboList"></div>
@@ -526,6 +531,15 @@ function openModal(k){
       closeModal(); renderList();
     });
   }
+  modalBody.querySelector('#linkInput').addEventListener('change',(e)=>{
+    const val=e.target.value.trim();
+    if(custom){
+      const cp=baseForKey(k); cp.link = val || null; saveCustom();
+    } else {
+      overrides.link[k] = val || null; saveOverrides();
+    }
+    renderList(); openModal(k);
+  });
   const input=modalBody.querySelector('#comboInput');
   const listEl2=modalBody.querySelector('#comboList');
   input.value = selIdx>=0 ? CATALOG[selIdx].item : '';
