@@ -34,6 +34,13 @@ h1{font-family:"Frank Ruhl Libre",serif; font-weight:600; font-size:32px; margin
   padding:9px 20px; cursor:pointer;
 }
 .floors button.on{background:var(--accent); color:var(--card)}
+.add-btn{
+  border:1.5px solid var(--done); background:var(--card); color:var(--done); border-radius:11px;
+  padding:8.5px 18px; font-family:"Heebo"; font-weight:600; font-size:14px; cursor:pointer;
+}
+.add-btn.on{background:var(--done); color:var(--card)}
+.stage-img-wrap.addmode{cursor:crosshair}
+.stage-img-wrap.addmode img{cursor:crosshair}
 .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--ink-soft)}
 .legend .dot{width:11px; height:11px; border-radius:50%; display:inline-block; margin-inline-end:6px; vertical-align:-1px}
 .progress-wrap{margin-top:16px}
@@ -164,6 +171,7 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
       <button id="btnGround" class="on">קומת קרקע</button>
       <button id="btnUpper">קומה עליונה</button>
     </div>
+    <button id="addModeBtn" class="add-btn">➕ הוסיפו נקודה</button>
     <div class="legend">
       <span><span class="dot" style="background:var(--done)"></span>נבחר</span>
       <span><span class="dot" style="background:var(--pending)"></span>ממתין/חלקי</span>
@@ -278,6 +286,25 @@ let saved={}; try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
 let overrides={pos:{},assign:{}}; try{overrides=Object.assign({pos:{},assign:{}},JSON.parse(localStorage.getItem(OKEY)||'{}'))}catch(e){}
 function saveOverrides(){ localStorage.setItem(OKEY,JSON.stringify(overrides)); }
 
+const CKEY='eshel57-lighting-custom-v1';
+let customPoints={ground:[],upper:[]};
+try{ customPoints=Object.assign({ground:[],upper:[]},JSON.parse(localStorage.getItem(CKEY)||'{}')); }catch(e){}
+function saveCustom(){ localStorage.setItem(CKEY,JSON.stringify(customPoints)); }
+function customKey(floorName,id){ return 'custom-'+floorName+'-'+id; }
+function isCustom(k){ return k.startsWith('custom-'); }
+function customFromKey(k){
+  const floorName=k.split('-')[1];
+  const id=k.slice(('custom-'+floorName+'-').length);
+  return customPoints[floorName].find(cp=>String(cp.id)===id);
+}
+function addCustomPoint(x,y){
+  const id=Date.now()+'-'+Math.floor(Math.random()*10000);
+  const entry={id,x:Math.round(x*10)/10,y:Math.round(y*10)/10,loc:'נקודה חדשה — לחצו לעריכה',item:'טרם נבחר',qty:1,store:'open',price:null,img:null,link:null,note:'',status:'open'};
+  customPoints[floor].push(entry);
+  saveCustom(); renderList();
+  focusItem(customKey(floor,id)); openModal(customKey(floor,id));
+}
+
 function itemKey(floorName,idx){return floorName+'-'+idx;}
 
 // build a catalog of every real (non-"טרם נבחר") product mentioned anywhere, deduped by name
@@ -293,10 +320,12 @@ const CATALOG=[];
 
 function baseForKey(k){
   if(k.startsWith('cand-')) return CANDIDATES[+k.split('-')[1]];
+  if(isCustom(k)) return customFromKey(k);
   const [fl,idx]=k.split('-'); return (fl==='ground'?GROUND:UPPER)[+idx];
 }
 // merged view: base data + any position/assignment override
 function effective(k){
+  if(isCustom(k)) return {...baseForKey(k)};
   const base=baseForKey(k);
   const pos=overrides.pos[k];
   const asg=overrides.assign[k];
@@ -349,27 +378,31 @@ function renderList(){
     row.id='row-'+i;
     listEl.appendChild(row);
   });
+  customPoints[floor].forEach(cp=>{
+    listEl.appendChild(buildRow(customKey(floor,cp.id)));
+  });
   candListEl.innerHTML='';
   CANDIDATES.forEach((_,i)=>{ candListEl.appendChild(buildRow('cand-'+i)); });
   renderPins();
   paint();
 }
+function addPin(k, label){
+  const d=effective(k);
+  const bought=!!saved[k];
+  const status=bought?'done':d.status;
+  const pin=document.createElement('button');
+  pin.className='pin '+status+((!isCustom(k)&&overrides.pos[k])?' moved':'');
+  pin.style.left=d.x+'%'; pin.style.top=d.y+'%';
+  pin.textContent=label; pin.setAttribute('aria-label',d.loc+': '+d.item);
+  pin.dataset.k=k;
+  attachDrag(pin,k);
+  pinsEl.appendChild(pin);
+}
 function renderPins(){
   const data = floor==='ground'?GROUND:UPPER;
   pinsEl.innerHTML='';
-  data.forEach((_,i)=>{
-    const k=itemKey(floor,i);
-    const d=effective(k);
-    const bought=!!saved[k];
-    const status=bought?'done':d.status;
-    const pin=document.createElement('button');
-    pin.className='pin '+status+(overrides.pos[k]?' moved':'');
-    pin.style.left=d.x+'%'; pin.style.top=d.y+'%';
-    pin.textContent=(i+1); pin.setAttribute('aria-label',d.loc+': '+d.item);
-    pin.dataset.k=k;
-    attachDrag(pin,k);
-    pinsEl.appendChild(pin);
-  });
+  data.forEach((_,i)=>{ addPin(itemKey(floor,i), i+1); });
+  customPoints[floor].forEach(cp=>{ addPin(customKey(floor,cp.id), '+'); });
 }
 function render(){
   planImg.src = floor==='ground'?GROUND_IMG:UPPER_IMG;
@@ -382,10 +415,12 @@ function focusItem(k){
   document.querySelectorAll('.row').forEach(r=>r.classList.toggle('active', r.dataset.k===k));
 }
 function paint(){
-  const total = GROUND.length+UPPER.length;
+  const total = GROUND.length+UPPER.length+customPoints.ground.length+customPoints.upper.length;
   let done=0;
   GROUND.forEach((d,i)=>{ if(saved[itemKey('ground',i)]) done++; });
   UPPER.forEach((d,i)=>{ if(saved[itemKey('upper',i)]) done++; });
+  customPoints.ground.forEach(cp=>{ if(saved[customKey('ground',cp.id)]) done++; });
+  customPoints.upper.forEach(cp=>{ if(saved[customKey('upper',cp.id)]) done++; });
   document.getElementById('bar').style.width=(100*done/total)+'%';
   document.getElementById('plabel').textContent='נרכשו '+done+' מתוך '+total+' פריטים (שתי הקומות)';
 }
@@ -409,9 +444,12 @@ function attachDrag(pin,k){
     document.removeEventListener('pointerup',onUp);
     pin.classList.remove('dragging');
     if(moved && pin._nx!=null){
-      overrides.pos[k]={x:Math.round(pin._nx*10)/10, y:Math.round(pin._ny*10)/10};
-      saveOverrides();
-      pin.classList.add('moved');
+      const nx=Math.round(pin._nx*10)/10, ny=Math.round(pin._ny*10)/10;
+      if(isCustom(k)){
+        const cp=baseForKey(k); cp.x=nx; cp.y=ny; saveCustom();
+      } else {
+        overrides.pos[k]={x:nx,y:ny}; saveOverrides(); pin.classList.add('moved');
+      }
     } else {
       focusItem(k); openModal(k);
     }
@@ -447,11 +485,14 @@ function openModal(k){
   const statusColor = d.status==='done'?'var(--done)':(d.status==='pending'?'var(--pending)':'var(--open)');
   const curAsg = overrides.assign[k];
   const selIdx = curAsg===undefined ? CATALOG.findIndex(c=>c.item===d.item) : curAsg;
+  const custom=isCustom(k);
   modalBody.innerHTML=`
     <button class="modal-close" id="modalCloseBtn" aria-label="סגור">✕</button>
     ${d.img && IMG[d.img] ? `<img class="modal-img" src="${IMG[d.img]}" alt="${d.item}">` : `<div class="modal-img empty">💡</div>`}
     <h3>${d.item}</h3>
-    <div class="mloc">${d.loc}</div>
+    ${custom
+      ? `<input type="text" id="locInput" class="combo-input" style="margin-bottom:10px" value="${d.loc.replace(/"/g,'&quot;')}" placeholder="שם המיקום (למשל: מסדרון קומה ב׳)">`
+      : `<div class="mloc">${d.loc}</div>`}
     <div class="mrow"><span class="storepill ${STORE_CLASS[d.store]}">${STORE_LABEL[d.store]}</span>
       <span style="font-weight:700; color:${statusColor}">${statusLabel}</span></div>
     <div class="mrow">כמות: <b>${d.qty}</b>${d.price? ' &nbsp;·&nbsp; מחיר ליח׳: <b>'+d.price+' ₪</b>':''}</div>
@@ -465,10 +506,22 @@ function openModal(k){
       </div>
     </div>
     <div class="modal-actions">
-      <button class="reset-btn" id="resetPosBtn" ${overrides.pos[k]?'':'disabled'}>↺ אפס מיקום על המפה</button>
-      <button class="reset-btn" id="resetAsgBtn" ${overrides.assign[k]!==undefined?'':'disabled'}>↺ בטל שיבוץ מחדש</button>
+      ${!custom ? `<button class="reset-btn" id="resetPosBtn" ${overrides.pos[k]?'':'disabled'}>↺ אפס מיקום על המפה</button>` : ''}
+      ${!custom ? `<button class="reset-btn" id="resetAsgBtn" ${overrides.assign[k]!==undefined?'':'disabled'}>↺ בטל שיבוץ מחדש</button>` : ''}
+      ${custom ? `<button class="reset-btn" id="deleteBtn" style="color:var(--open); border-color:var(--open)">🗑 מחקו נקודה</button>` : ''}
     </div>
   `;
+  if(custom){
+    modalBody.querySelector('#locInput').addEventListener('change',(e)=>{
+      const cp=baseForKey(k); cp.loc=e.target.value.trim()||'נקודה חדשה'; saveCustom(); renderList();
+    });
+    modalBody.querySelector('#deleteBtn').addEventListener('click',()=>{
+      const floorName=k.split('-')[1];
+      customPoints[floorName]=customPoints[floorName].filter(cp=>customKey(floorName,cp.id)!==k);
+      saveCustom(); delete saved[k]; localStorage.setItem(KEY,JSON.stringify(saved));
+      closeModal(); renderList();
+    });
+  }
   const input=modalBody.querySelector('#comboInput');
   const listEl2=modalBody.querySelector('#comboList');
   input.value = selIdx>=0 ? CATALOG[selIdx].item : '';
@@ -487,8 +540,16 @@ function openModal(k){
       el.addEventListener('mousedown',(e)=>{
         e.preventDefault();
         const ci = Number(el.dataset.ci);
-        overrides.assign[k] = ci<0 ? null : ci;
-        saveOverrides(); renderList(); openModal(k);
+        if(custom){
+          const cp=baseForKey(k);
+          if(ci<0){ Object.assign(cp,{item:'טרם נבחר',store:'open',price:null,img:null,link:null,status:'open'}); }
+          else{ const c=CATALOG[ci]; Object.assign(cp,{item:c.item,store:c.store,price:c.price,img:c.img,link:c.link,status:'done'}); }
+          saveCustom();
+        } else {
+          overrides.assign[k] = ci<0 ? null : ci;
+          saveOverrides();
+        }
+        renderList(); openModal(k);
       });
     });
   }
@@ -497,10 +558,12 @@ function openModal(k){
   input.addEventListener('blur',()=>{ setTimeout(()=>listEl2.classList.remove('open'),120); });
 
   modalBody.querySelector('#modalCloseBtn').addEventListener('click', closeModal);
-  modalBody.querySelector('#resetPosBtn').addEventListener('click',()=>{
+  const resetPosBtn=modalBody.querySelector('#resetPosBtn');
+  if(resetPosBtn) resetPosBtn.addEventListener('click',()=>{
     delete overrides.pos[k]; saveOverrides(); renderPins(); openModal(k);
   });
-  modalBody.querySelector('#resetAsgBtn').addEventListener('click',()=>{
+  const resetAsgBtn=modalBody.querySelector('#resetAsgBtn');
+  if(resetAsgBtn) resetAsgBtn.addEventListener('click',()=>{
     delete overrides.assign[k]; saveOverrides(); renderList(); openModal(k);
   });
   modalBack.classList.add('open');
@@ -509,7 +572,26 @@ function closeModal(){ modalBack.classList.remove('open'); }
 modalBack.addEventListener('click',(e)=>{ if(e.target===modalBack) closeModal(); });
 document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeModal(); });
 
-document.getElementById('btnGround').addEventListener('click',()=>{floor='ground'; document.getElementById('btnGround').classList.add('on'); document.getElementById('btnUpper').classList.remove('on'); render();});
-document.getElementById('btnUpper').addEventListener('click',()=>{floor='upper'; document.getElementById('btnUpper').classList.add('on'); document.getElementById('btnGround').classList.remove('on'); render();});
+document.getElementById('btnGround').addEventListener('click',()=>{floor='ground'; document.getElementById('btnGround').classList.add('on'); document.getElementById('btnUpper').classList.remove('on'); setAddMode(false); render();});
+document.getElementById('btnUpper').addEventListener('click',()=>{floor='upper'; document.getElementById('btnUpper').classList.add('on'); document.getElementById('btnGround').classList.remove('on'); setAddMode(false); render();});
+
+let addMode=false;
+const addBtn=document.getElementById('addModeBtn');
+function setAddMode(on){
+  addMode=on;
+  addBtn.classList.toggle('on',addMode);
+  addBtn.textContent = addMode ? '✕ ביטול (לחצו על המפה)' : '➕ הוסיפו נקודה';
+  stageWrap.classList.toggle('addmode',addMode);
+}
+addBtn.addEventListener('click',()=>setAddMode(!addMode));
+planImg.addEventListener('click',(e)=>{
+  if(!addMode) return;
+  const rect=stageWrap.getBoundingClientRect();
+  const x=Math.max(1,Math.min(99, ((e.clientX-rect.left)/rect.width)*100));
+  const y=Math.max(1,Math.min(99, ((e.clientY-rect.top)/rect.height)*100));
+  setAddMode(false);
+  addCustomPoint(x,y);
+});
+
 render();
 </script>
