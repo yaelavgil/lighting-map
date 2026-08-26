@@ -71,6 +71,13 @@ h1{font-family:"Rubik","Heebo",sans-serif; font-weight:800; font-size:32px; marg
 .zoom-toolbar button{width:28px; height:28px; border:0; border-radius:7px; background:transparent; color:var(--ink); font-size:16px; font-weight:700; cursor:pointer; font-family:"Heebo"}
 .zoom-toolbar button:hover{background:var(--accent-soft); color:var(--accent)}
 .zoom-pct{font-size:11px; color:var(--ink-soft); font-variant-numeric:tabular-nums; padding:0 4px; min-width:34px; text-align:center}
+/* תצוגת מפה בלבד */
+body.map-only .wrap{max-width:none; margin:0; padding:0}
+body.map-only .wrap > *{display:none}
+body.map-only .wrap > .stage{display:block}
+body.map-only .stage{margin:0; border:0; border-radius:0; padding:8px; background:var(--paper)}
+body.map-only .stage-img-wrap{width:min(100%, calc((100vh - 56px) * 0.7065)); margin-inline:auto}
+body.map-only .stage-hint{margin-top:5px}
 /* סמנים — הילה רכה ושקופה, לא מסתירה את התוכנית */
 .pin{
   position:absolute; transform:translate(-50%,-50%); width:28px; height:28px; border-radius:50%;
@@ -302,6 +309,7 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
       <div id="pins"></div>
     </div>
     <div class="zoom-toolbar">
+      <button id="mapOnlyBtn" aria-label="מפה בלבד" title="מפה בלבד (מסך מלא)">⛶</button>
       <button id="zoomInBtn" aria-label="הגדילו">＋</button>
       <button id="zoomOutBtn" aria-label="הקטינו">－</button>
       <button id="zoomResetBtn" aria-label="איפוס זום">⤢</button>
@@ -950,7 +958,7 @@ function openModal(k){
 }
 function closeModal(){ modalBack.classList.remove('open'); }
 modalBack.addEventListener('click',(e)=>{ if(e.target===modalBack) closeModal(); });
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeModal(); });
+/* מטופל במאזין המאוחד בהמשך (מודל תחילה, אחר כך יציאה ממפה בלבד) */
 
 document.getElementById('groupSwapBtn').addEventListener('click',()=>{
   groupPrimary = groupPrimary==='room' ? 'type' : 'room';
@@ -981,6 +989,24 @@ planImg.addEventListener('click',(e)=>{
   addCustomPoint(p.x,p.y);
 });
 
+function setMapOnly(on){
+  document.body.classList.toggle('map-only', on);
+  const b=document.getElementById('mapOnlyBtn');
+  b.textContent = on ? '✕' : '⛶';
+  b.setAttribute('aria-label', on ? 'חזרה לתצוגה המלאה' : 'מפה בלבד');
+  b.setAttribute('title', on ? 'חזרה לתצוגה המלאה (Esc)' : 'מפה בלבד (מסך מלא)');
+  try{ history.replaceState(null,'', on ? '#map' : location.pathname+location.search); }catch(e){}
+  requestAnimationFrame(()=>applyZoom(false));
+}
+document.getElementById('mapOnlyBtn').addEventListener('click',()=>{
+  setMapOnly(!document.body.classList.contains('map-only'));
+});
+document.addEventListener('keydown',(e)=>{
+  if(e.key!=='Escape') return;
+  if(modalBack.classList.contains('open')){ closeModal(); return; }
+  if(document.body.classList.contains('map-only')) setMapOnly(false);
+});
+window.addEventListener('resize',()=>applyZoom(false));
 document.getElementById('zoomInBtn').addEventListener('click',()=>setZoom(zoom*1.4));
 document.getElementById('zoomOutBtn').addEventListener('click',()=>setZoom(zoom/1.4));
 document.getElementById('zoomResetBtn').addEventListener('click', resetZoom);
@@ -1009,4 +1035,5 @@ window.addEventListener('pointerup',()=>{
 });
 
 render();
+if(location.hash==='#map') setMapOnly(true);
 </script>
