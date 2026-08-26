@@ -98,7 +98,8 @@ h1{font-family:"Rubik","Heebo",sans-serif; font-weight:800; font-size:32px; marg
   box-shadow:0 1px 4px rgba(0,0,0,.35);
 }
 .pin.has-img img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block }
-.pin.has-img:hover, .pin.has-img.active{ width:34px; height:34px }
+.pin.has-img:hover, .pin.has-img.active{ transform:translate(-50%,-50%) scale(1.45) }
+.pin.has-img.dragging{ transform:translate(-50%,-50%) scale(1.5) }
 .pin.moved::after{content:""; position:absolute; bottom:-5px; left:50%; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:var(--accent); border:1.5px solid var(--card)}
 .stage-hint{font-size:11.5px; color:var(--ink-soft); margin-top:8px; text-align:center}
 .reset-all-link{color:var(--accent)}
@@ -202,6 +203,28 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 .modal-img.empty span.hint{font-size:12px; font-family:"Heebo"}
 .modal h3{font-family:"Rubik","Heebo",sans-serif; font-size:20px; margin:0 0 3px; font-weight:600}
 .modal .mloc{font-size:13px; color:var(--ink-soft); margin-bottom:10px}
+.img-wrap{position:relative; margin-bottom:14px}
+.img-wrap .modal-img{margin-bottom:0}
+.img-actions{position:absolute; bottom:8px; inset-inline-start:8px; display:flex; gap:6px}
+.img-btn{
+  background:rgba(0,0,0,.62); color:#fff; border:0; border-radius:8px; padding:6px 10px;
+  font-size:11.5px; font-family:"Heebo"; cursor:pointer; backdrop-filter:blur(4px);
+}
+.img-btn:hover{background:rgba(0,0,0,.82)}
+.title-input{
+  width:100%; font-family:"Rubik","Heebo",sans-serif; font-size:20px; font-weight:600; color:var(--ink);
+  background:transparent; border:0; border-bottom:1.5px dashed transparent; padding:2px 0; margin-bottom:2px;
+}
+.title-input:hover{border-bottom-color:var(--line)}
+.title-input:focus{outline:none; border-bottom-color:var(--accent)}
+.title-input::placeholder{color:var(--ink-soft); font-weight:500}
+.loc-input{
+  width:100%; font-family:"Heebo"; font-size:13px; color:var(--ink-soft); background:transparent;
+  border:0; border-bottom:1.5px dashed transparent; padding:2px 0; margin-bottom:10px;
+}
+.loc-input:hover{border-bottom-color:var(--line)}
+.loc-input:focus{outline:none; border-bottom-color:var(--accent); color:var(--ink)}
+.note-input{resize:vertical; min-height:52px; font-family:"Heebo"; line-height:1.5}
 .status-pill{
   display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; padding:4px 11px 4px 9px;
   border-radius:999px; margin-bottom:12px;
@@ -420,7 +443,8 @@ const listTitle=document.getElementById('listTitle');
 const KEY='eshel57-lighting-map-v2';
 const OKEY='eshel57-lighting-overrides-v1';
 let saved={}; try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
-let overrides={pos:{},assign:{},link:{},price:{}}; try{overrides=Object.assign({pos:{},assign:{},link:{},price:{}},JSON.parse(localStorage.getItem(OKEY)||'{}'))}catch(e){}
+const ODEF={pos:{},assign:{},link:{},price:{},note:{},name:{},imgSrc:{},loc:{}};
+let overrides=Object.assign({},ODEF); try{overrides=Object.assign({},ODEF,JSON.parse(localStorage.getItem(OKEY)||'{}'))}catch(e){}
 function saveOverrides(){ localStorage.setItem(OKEY,JSON.stringify(overrides)); }
 
 const CKEY='eshel57-lighting-custom-v1';
@@ -448,7 +472,7 @@ function duplicatePoint(k){
   const ny=Math.max(1,Math.min(99,(d.y||50)+3));
   const entry={id, x:Math.round(nx*10)/10, y:Math.round(ny*10)/10,
     loc:d.loc+' (עותק)', item:d.item, qty:d.qty, store:d.store, price:d.price,
-    img:d.img||null, link:d.link||null, note:d.note||'', status:d.status,
+    img:d.img||null, imgSrc:d.imgSrc||null, link:d.link||null, note:d.note||'', status:d.status,
     type:d.type||'אחר', room:d.room||'אחר'};
   customPoints[floor].push(entry);
   saveCustom(); closeModal(); renderList();
@@ -487,8 +511,13 @@ function effective(k){
   }
   if(overrides.link[k]!==undefined){ d.link = overrides.link[k] || null; }
   if(overrides.price[k]!==undefined){ d.price = overrides.price[k]; }
+  if(overrides.note[k]!==undefined){ d.note = overrides.note[k] || ''; }
+  if(overrides.name[k]!==undefined && overrides.name[k]){ d.item = overrides.name[k]; if(d.status==='open') d.status='pending'; }
+  if(overrides.loc[k]!==undefined && overrides.loc[k]){ d.loc = overrides.loc[k]; }
+  if(overrides.imgSrc[k]!==undefined){ d.imgSrc = overrides.imgSrc[k] || null; }
   return d;
 }
+function imgSrcFor(d){ return d.imgSrc || (d.img && IMG[d.img]) || null; }
 function moneyLine(d){
   const p=Number(d.price), q=Number(d.qty);
   if(!isFinite(p)||p<=0) return 0;
@@ -539,7 +568,8 @@ function renderTypeSummary(entries){
 }
 
 function thumbHTML(d){
-  if(d.img && IMG[d.img]) return `<img src="${IMG[d.img]}" alt="${d.item}">`;
+  const src=imgSrcFor(d);
+  if(src) return `<img src="${src}" alt="${d.item}">`;
   return '<span>💡</span>';
 }
 function buildRow(k){
@@ -621,10 +651,10 @@ function addPin(k, label){
   const bought=!!saved[k];
   const status=bought?'done':d.status;
   const pin=document.createElement('button');
-  const hasImg = status==='done' && d.img && IMG[d.img];
-  pin.className='pin '+status+((!isCustom(k)&&overrides.pos[k])?' moved':'')+(status==='open'?' pulse':'')+(hasImg?' has-img':'');
+  const pinSrc = status!=='open' ? imgSrcFor(d) : null;
+  pin.className='pin '+status+((!isCustom(k)&&overrides.pos[k])?' moved':'')+(status==='open'?' pulse':'')+(pinSrc?' has-img':'');
   pin.style.left=d.x+'%'; pin.style.top=d.y+'%';
-  if(hasImg){ pin.innerHTML=`<img src="${IMG[d.img]}" alt="">`; }
+  if(pinSrc){ pin.innerHTML=`<img src="${pinSrc}" alt="">`; }
   else { pin.textContent=label; }
   pin.setAttribute('aria-label',d.loc+': '+d.item);
   pin.dataset.k=k;
@@ -721,19 +751,28 @@ function openModal(k){
   const selIdx = curAsg===undefined ? CATALOG.findIndex(c=>c.item===d.item) : curAsg;
   const custom=isCustom(k);
   const hasManual = (d.price!=null) || !!d.link;
+  const modalSrc = imgSrcFor(d);
   modalBody.innerHTML=`
     <button class="modal-close" id="modalCloseBtn" aria-label="סגור">✕</button>
-    ${d.img && IMG[d.img]
-      ? `<img class="modal-img" src="${IMG[d.img]}" alt="${d.item}">`
-      : `<div class="modal-img empty"><span>💡</span><span class="hint">עדיין לא נבחר גוף תאורה לנקודה הזו</span></div>`}
-    <h3>${isChosen ? d.item : d.loc}</h3>
-    ${custom
-      ? `<input type="text" id="locInput" class="combo-input" style="margin-bottom:10px" value="${d.loc.replace(/"/g,'&quot;')}" placeholder="שם המיקום (למשל: מסדרון קומה ב׳)">`
-      : (isChosen ? `<div class="mloc">${d.loc}</div>` : '')}
+    <div class="img-wrap">
+      ${modalSrc
+        ? `<img class="modal-img" src="${modalSrc}" alt="${d.item}">`
+        : `<div class="modal-img empty"><span>💡</span><span class="hint">עדיין לא נבחר גוף תאורה לנקודה הזו</span></div>`}
+      <div class="img-actions">
+        <button class="img-btn" id="imgUploadBtn" type="button">📷 ${modalSrc?'החליפו תמונה':'הוסיפו תמונה'}</button>
+        ${overrides.imgSrc[k]||(custom&&d.imgSrc) ? `<button class="img-btn" id="imgClearBtn" type="button">✕ הסירו</button>`:''}
+      </div>
+      <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+    </div>
+    <input type="text" id="nameInput" class="title-input" value="${(d.item==='טרם נבחר'?'':d.item).replace(/"/g,'&quot;')}" placeholder="שם גוף התאורה (לחצו לעריכה)">
+    <input type="text" id="locInput" class="loc-input" value="${d.loc.replace(/"/g,'&quot;')}" placeholder="מיקום (למשל: מסדרון קומה ב׳)">
     <span class="status-pill ${d.status}"><span class="dot" style="background:currentColor"></span>${statusLabel}${isChosen?' · '+STORE_LABEL[d.store]:''}</span>
     <div class="mrow">כמות: <b>${d.qty}</b></div>
-    ${d.note? `<div class="mnote">${d.note}</div>`:''}
     ${d.link? `<a class="buy-btn" href="${d.link}" target="_blank" rel="noopener">לצפייה ורכישה ←</a>` : ''}
+    <div class="reassign-wrap">
+      <label>📝 הערות:</label>
+      <textarea class="combo-input note-input" id="noteInput" rows="2" placeholder="הוסיפו הערה — למשל: לוודא גובה עם נופר, להזמין 2 רזרביים...">${(d.note||'').replace(/</g,'&lt;')}</textarea>
+    </div>
     <div class="pick-section">
       <div class="pick-section-label">🔍 ${isChosen?'החליפו לגוף תאורה אחר':'בחרו גוף תאורה לנקודה הזו'}</div>
       <div class="combo">
@@ -770,10 +809,65 @@ function openModal(k){
     const open=body.classList.toggle('open');
     chev.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
   });
+  modalBody.querySelector('#locInput').addEventListener('change',(e)=>{
+    const val=e.target.value.trim()||'נקודה ללא שם';
+    if(custom){ const cp=baseForKey(k); cp.loc=val; saveCustom(); }
+    else { overrides.loc[k]=val; saveOverrides(); }
+    renderList();
+  });
+  modalBody.querySelector('#nameInput').addEventListener('change',(e)=>{
+    const val=e.target.value.trim();
+    if(custom){
+      const cp=baseForKey(k);
+      cp.item = val || 'טרם נבחר';
+      if(val && cp.status==='open') cp.status='pending';
+      if(!val) cp.status='open';
+      saveCustom();
+    } else {
+      overrides.name[k] = val || null; saveOverrides();
+    }
+    renderList(); openModal(k);
+  });
+  modalBody.querySelector('#noteInput').addEventListener('change',(e)=>{
+    const val=e.target.value.trim();
+    if(custom){ const cp=baseForKey(k); cp.note=val; saveCustom(); }
+    else { overrides.note[k]=val; saveOverrides(); }
+    renderList();
+  });
+  const fileInput=modalBody.querySelector('#imgFileInput');
+  modalBody.querySelector('#imgUploadBtn').addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',(e)=>{
+    const file=e.target.files&&e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=400;
+        const scale=Math.min(1, MAX/Math.max(img.width,img.height));
+        const c=document.createElement('canvas');
+        c.width=Math.round(img.width*scale); c.height=Math.round(img.height*scale);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        const dataUrl=c.toDataURL('image/jpeg',0.82);
+        try{
+          if(custom){ const cp=baseForKey(k); cp.imgSrc=dataUrl; saveCustom(); }
+          else { overrides.imgSrc[k]=dataUrl; saveOverrides(); }
+          renderList(); openModal(k);
+        }catch(err){
+          alert('לא הצלחנו לשמור את התמונה — ייתכן שאין מספיק מקום בדפדפן. נסו תמונה קטנה יותר.');
+        }
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  const imgClearBtn=modalBody.querySelector('#imgClearBtn');
+  if(imgClearBtn) imgClearBtn.addEventListener('click',()=>{
+    if(custom){ const cp=baseForKey(k); cp.imgSrc=null; saveCustom(); }
+    else { delete overrides.imgSrc[k]; saveOverrides(); }
+    renderList(); openModal(k);
+  });
   if(custom){
-    modalBody.querySelector('#locInput').addEventListener('change',(e)=>{
-      const cp=baseForKey(k); cp.loc=e.target.value.trim()||'נקודה חדשה'; saveCustom(); renderList();
-    });
     modalBody.querySelector('#deleteBtn').addEventListener('click',()=>{
       const floorName=k.split('-')[1];
       customPoints[floorName]=customPoints[floorName].filter(cp=>customKey(floorName,cp.id)!==k);
