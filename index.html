@@ -274,6 +274,26 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 .utility-btn:disabled{opacity:.4; cursor:default; background:none}
 .utility-btn.danger:hover{background:var(--open-soft); color:var(--open)}
 @media (prefers-reduced-motion: reduce){ .progress>div,.pin{transition:none} .pin.pulse{animation:none} }
+
+.ordsum{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 6px}
+@media(max-width:760px){.ordsum{grid-template-columns:1fr}}
+.ordbox{border-radius:16px;padding:16px 18px;border:1px solid var(--line,#DDD9C6)}
+.ordbox.got{background:color-mix(in srgb,var(--done,#4A7355) 9%,transparent);
+  border-color:color-mix(in srgb,var(--done,#4A7355) 34%,transparent)}
+.ordbox.left{background:color-mix(in srgb,var(--pending,#B97F1E) 11%,transparent);
+  border-color:color-mix(in srgb,var(--pending,#B97F1E) 42%,transparent)}
+.ordbox h3{margin:0 0 2px;font-size:19px;font-weight:800}
+.ordbox.got h3{color:var(--done,#4A7355)} .ordbox.left h3{color:var(--pending,#B97F1E)}
+.ordbox .sub{font-size:12.5px;opacity:.75;margin-bottom:12px;font-weight:600}
+.oline{display:flex;justify-content:space-between;gap:10px;padding:7px 0;
+  border-bottom:1px dashed color-mix(in srgb,currentColor 18%,transparent);font-size:14px}
+.oline:last-of-type{border-bottom:0}
+.oline .w{font-weight:700} .oline .d{opacity:.7;font-size:12.5px;font-weight:400}
+.oline .n{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+.ordfoot{margin-top:11px;padding-top:10px;border-top:2px solid color-mix(in srgb,currentColor 22%,transparent);
+  display:flex;justify-content:space-between;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums}
+.srcpill{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;margin-inline-start:6px;
+  background:color-mix(in srgb,currentColor 14%,transparent)}
 </style>
 
 <div class="wrap">
@@ -303,6 +323,38 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
     <div class="total-sub" id="totalSub"></div>
   </div>
 </header>
+<div class="ordsum">
+  <div class="ordbox got">
+    <h3>✓ הוזמן ושולם</h3>
+    <div class="sub">הבית של עידה · חשבונית 02/046138 · 4.9.2026 · אספקה עד 30 ימי עבודה</div>
+    <div class="oline"><span><span class="w">פבריציו</span> ×8<br><span class="d">מדרגות, מסדרון, ח. שינה הורים + אורחים</span></span><span class="n">2,472 ₪</span></div>
+    <div class="oline"><span><span class="w">מארק</span> ×8<br><span class="d">חלל מרכזי + קומה שנייה</span></span><span class="n">2,472 ₪</span></div>
+    <div class="oline"><span><span class="w">ולרי</span> ×3 <span class="d">(חובק בקבוק)</span><br><span class="d">מעל האי</span></span><span class="n">840 ₪</span></div>
+    <div class="oline"><span><span class="w">הלנה</span> ×1<br><span class="d">מעל מראת הכניסה</span></span><span class="n">336 ₪</span></div>
+    <div class="oline"><span><span class="w">סילו</span> ×1 <span class="d">(קיר)</span><br><span class="d">מקלחת אורחים</span></span><span class="n">310 ₪</span></div>
+    <div class="oline"><span><span class="w">קייטי</span> ×1 <span class="d">(צמוד תקרה ⌀15)</span><br><span class="d">מקלחת אורחים</span></span><span class="n">270 ₪</span></div>
+    <div class="ordfoot"><span>22 יחידות</span><span>6,700 ₪</span></div>
+  </div>
+
+  <div class="ordbox left">
+    <h3>נותר להזמין</h3>
+    <div class="sub">מה שעדיין פתוח, מקובץ לפי איפה כדאי לקנות</div>
+    <div class="oline"><span><span class="w">תאורת חוץ</span><span class="srcpill">עלי אקספרס</span><br><span class="d">קיר מערבי 3 · קיר מזרחי 3 · דלת כניסה · כניסה מקורה · דלת המטבח · מרפסת 4</span></span><span class="n">13</span></div>
+    <div class="oline"><span><span class="w">עמודי תאורה</span><span class="srcpill">עלי אקספרס</span><br><span class="d">שביל מערבי</span></span><span class="n">4</span></div>
+    <div class="oline"><span><span class="w">ספוטים ופס צבירה</span><span class="srcpill">מחסני תאורה</span><br><span class="d">פס צבירה 2 · ספוטים לפס 10 · ספוטים לפרגולה 6 — הפס נמכר לפי אורך</span></span><span class="n">18</span></div>
+    <div class="oline"><span><span class="w">מאווררי תקרה</span><span class="srcpill">מחסני תאורה</span><br><span class="d">קרקע 3 · פינת משפחה 2 · פרגולה 2 · ממ״ד 1</span></span><span class="n">8</span></div>
+    <div class="oline"><span><span class="w">גופי תקרה</span><span class="srcpill">מחסני תאורה</span><br><span class="d">חדר עבודה 6 · הורים 2 · רחצה הורים 2 · ארונות 2 · מטבח · מקלחת כללית · מקלחות/מסדרון 5</span></span><span class="n">19</span></div>
+    <div class="oline"><span><span class="w">תלויים</span><span class="srcpill">טורקיז / עידה</span><br><span class="d">שולחן הסלון · פינת האוכל · מעל הספה בפינת המשפחה 2</span></span><span class="n">4</span></div>
+    <div class="oline"><span><span class="w">צמודי קיר</span><br><span class="d">חדר שינה 2 · ממ״ד · מראה מקלחת אורחים · מראה רחצה הורים · סלון קיר צפוני</span></span><span class="n">6</span></div>
+    <div class="oline"><span><span class="w">תאורה נסתרת</span><br><span class="d">פלינתה מתחת לארון ההורים · לד נסתר פינת משפחה + חדר עבודה</span></span><span class="n">2</span></div>
+    <div class="ordfoot"><span>~74 יחידות ב-8 קבוצות</span><span>—</span></div>
+  </div>
+</div>
+<p style="font-size:12.5px;opacity:.7;margin:2px 0 22px;font-weight:600">
+  הסיכום נבנה מחשבונית עידה מ-4.9 ומרשימת הנקודות למטה. הפירוט בטבלה עדיין מציג את הבחירות המוקדמות —
+  שם הפריט בחשבונית שונה ממה שסומן בזמנו (פבריציו ומארק במקום שניקה/הלנה/קרמן).
+</p>
+
 
 <h2 class="section">סיכום לפי סוג תאורה (שתי הקומות יחד)</h2>
 <div class="typegrid" id="typeSummary"></div>
