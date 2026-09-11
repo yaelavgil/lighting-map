@@ -50,10 +50,9 @@ img{max-width:100%}
 }
 /* המפה במסך מלא — כניסה ויציאה נוחות בנייד */
 body.map-only{overflow:hidden}
-body.map-only .stage{padding:0; height:100dvh}
+body.map-only .stage{padding:0; display:flex; align-items:center; justify-content:center; min-height:100dvh}
 body.map-only .stage-img-wrap{
-  width:auto; height:calc(100dvh - env(safe-area-inset-bottom) - 0px);
-  display:flex; align-items:center; justify-content:center; border-radius:0;
+  width:min(100%, calc((100dvh - 150px) * 0.7065)); margin-inline:auto; border-radius:0;
 }
 body.map-only .stage-hint{display:none}
 .map-fab{
@@ -131,9 +130,10 @@ body.map-only .map-exit{display:block}
 .nofar-bar .sw{width:10px; height:10px; border-radius:50%; border:2px solid currentColor; background:transparent}
 .sw.ida{color:#C8386E} .sw.mach{color:#0E8FA3} .sw.ali{color:#4F9236}
 body.map-only .nofar-bar{
-  position:fixed; inset-inline:0; top:calc(env(safe-area-inset-top) + 8px);
+  position:fixed; inset-inline:0; bottom:calc(env(safe-area-inset-bottom) + 68px);
   z-index:55; justify-content:center; margin:0; padding:0 10px;
 }
+.nofar-bar .nfchip{box-shadow:0 2px 8px rgba(0,0,0,.12)}
 /* ===== חלונית נקודה של נופר ===== */
 .nfpop{
   position:fixed; inset-inline:0; bottom:0; z-index:70; background:var(--card);
@@ -658,10 +658,10 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
     </div>
   </div>
   <div class="nofar-bar" id="nofarBar">
-  <button class="nfchip" id="nfToggle" aria-pressed="false">◎ הסימון של נופר</button>
-  <button class="nfchip" data-nf="ida" aria-pressed="true" hidden><span class="sw ida"></span>עידה</button>
-  <button class="nfchip" data-nf="mach" aria-pressed="true" hidden><span class="sw mach"></span>מחסני תאורה</button>
-  <button class="nfchip" data-nf="ali" aria-pressed="true" hidden><span class="sw ali"></span>עלי אקספרס</button>
+  <button class="nfchip" id="nfToggle" aria-pressed="true">◎ הסימון של נופר</button>
+  <button class="nfchip" data-nf="ida" aria-pressed="true"><span class="sw ida"></span>עידה</button>
+  <button class="nfchip" data-nf="mach" aria-pressed="true"><span class="sw mach"></span>מחסני תאורה</button>
+  <button class="nfchip" data-nf="ali" aria-pressed="true"><span class="sw ali"></span>עלי אקספרס</button>
 </div>
 <button class="map-exit" id="mapExitBtn">✕ סגירת המפה</button>
 <div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
@@ -1874,7 +1874,7 @@ stageWrap.addEventListener('click',(e)=>{
 const NOFAR=(function(){ try{ return JSON.parse(document.getElementById('nofar-data').textContent); }catch(e){ return {m:[],n:[],ida:[]}; } })();
 const NF_SUP={ida:'הבית של עידה — הוזמן',mach:'מחסני תאורה — להזמין',ali:'עלי אקספרס — להזמין'};
 const nofarLayer=document.getElementById('nofarLayer');
-let nofarOn=false;
+let nofarOn=true;
 const nofarOff={ida:false,mach:false,ali:false};
 let nfCur=null;
 
