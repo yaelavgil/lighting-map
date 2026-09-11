@@ -607,6 +607,13 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
   <div class="modal" id="modalBody"></div>
 </div>
 
+<button class="map-fab" id="mapFabBtn">⛶ מפה על מסך מלא</button>
+<div class="lightbox" id="lightbox">
+  <img id="lbImg" alt="">
+  <button class="lb-close" id="lbCloseBtn" aria-label="סגירה">✕</button>
+  <span class="lb-hint">צביטה להגדלה · הקשה כפולה</span>
+  <a class="lb-link" id="lbLinkBtn" target="_blank" rel="noopener" hidden>לדף המוצר ←</a>
+</div>
 <script>
 const STORE_LABEL={ida:'עידה',ali:'אקספרס',turkiz:'טורקיז',mahsanei:'מחסני תאורה',open:'—'};
 const STORE_CLASS={ida:'store-ida',ali:'store-ali',turkiz:'store-turkiz',mahsanei:'store-mahsanei',open:'store-open'};
@@ -1830,12 +1837,5 @@ render();
 if(location.hash==='#map') setMapOnly(true);
 boot();
 </script>
-<button class="map-fab" id="mapFabBtn">⛶ מפה על מסך מלא</button>
-<div class="lightbox" id="lightbox">
-  <img id="lbImg" alt="">
-  <button class="lb-close" id="lbCloseBtn" aria-label="סגירה">✕</button>
-  <span class="lb-hint">צביטה להגדלה · הקשה כפולה</span>
-  <a class="lb-link" id="lbLinkBtn" target="_blank" rel="noopener" hidden>לדף המוצר ←</a>
-</div>
 </body>
 </html>
