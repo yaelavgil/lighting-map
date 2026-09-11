@@ -191,6 +191,20 @@ body.map-only .nofar-bar{
   background:var(--done-soft); border:1px solid var(--line); border-radius:12px;
   padding:13px 15px; margin-top:14px; font-weight:700}
 .machtot .s{font-size:13px; font-weight:500; color:var(--ink-soft)}
+.rcsum{display:flex; gap:9px; flex-wrap:wrap; margin:10px 0 14px}
+.rcsum div{flex:1 1 150px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px 13px}
+.rcsum b{display:block; font-size:20px; font-variant-numeric:tabular-nums}
+.rcsum span{font-size:12.5px; color:var(--ink-soft)}
+.rcrow{background:var(--card); border:1px solid var(--line); border-inline-start:3px solid var(--line);
+  border-radius:10px; padding:11px 13px; margin-bottom:8px}
+.rcrow.sup{border-inline-start-color:var(--pending)}
+.rcrow.miss{border-inline-start-color:var(--open)}
+.rcrow.extra{border-inline-start-color:var(--ink-soft)}
+.rcrow .h{font-weight:700; font-size:14.5px; display:flex; gap:8px; align-items:baseline; flex-wrap:wrap}
+.rcrow .fl{font-size:11.5px; color:var(--ink-soft); font-weight:500}
+.rcrow .c{display:flex; gap:10px; flex-wrap:wrap; font-size:13px; margin-top:6px}
+.rcrow .c i{font-style:normal; color:var(--ink-soft)}
+.rcrow .t{font-size:13px; color:var(--ink-soft); margin-top:6px; line-height:1.45}
 .img-openlink{
   display:flex; align-items:center; justify-content:center; gap:7px;
   margin-top:8px; padding:11px 14px; border-radius:11px; text-decoration:none;
@@ -658,6 +672,9 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
   <div class="qplists" id="qpLists"></div>
 </div>
 <datalist id="storeList"></datalist>
+
+<h2 class="section">התאמה מול המיפוי של נופר</h2>
+<div id="reconWrap"></div>
 
 <h2 class="section">ההזמנה מהבית של עידה — לאן כל פריט משויך</h2>
 <div class="idagrid" id="idaGrid"></div>
@@ -2019,6 +2036,24 @@ document.querySelectorAll('#nofarBar [data-nf]').forEach(function(b){
       '<span class="q">×'+it.q+' · '+it.t.toLocaleString('he-IL')+' ₪</span></div>'+
       '<div class="w">'+esc(it.where)+'</div></div>';
   }).join('');
+})();
+
+/* התאמה מול המיפוי של נופר */
+(function(){
+  const w=document.getElementById('reconWrap');
+  if(!w || !NOFAR.recon) return;
+  const R=NOFAR.recon, K={sup:'ספק שונה',miss:'חסר בדף',extra:'בדף אבל לא אצל נופר'};
+  w.innerHTML =
+    '<div class="rcsum">'+
+    '<div><b>'+R.counts.g.nofar+' / '+R.counts.g.page+'</b><span>קומת קרקע — נקודות אצל נופר / יחידות בדף</span></div>'+
+    '<div><b>'+R.counts.u.nofar+' / '+R.counts.u.page+'</b><span>קומה עליונה</span></div>'+
+    '<div><b>'+R.rows.length+'</b><span>פערים שמצאתי</span></div></div>'+
+    R.rows.map(function(r){
+      return '<div class="rcrow '+r.k+'"><div class="h">'+esc(r.w)+
+        '<span class="fl">'+esc(r.f)+' · '+K[r.k]+'</span></div>'+
+        '<div class="c"><span><i>בדף:</i> '+esc(r.p)+'</span><span><i>אצל נופר:</i> '+esc(r.n)+'</span></div>'+
+        (r.t?'<div class="t">'+esc(r.t)+'</div>':'')+'</div>';
+    }).join('');
 })();
 
 /* פירוט הרכישה ממחסני תאורה */
