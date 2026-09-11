@@ -1,5 +1,110 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>מפת תאורת אשל 57</title>
+<meta name="description" content="כל נקודות התאורה של אשל 57 על גבי התוכניות — מה הוזמן, מאיפה, ומה עוד נשאר להזמין.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="אשל 57">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="מפת תאורת אשל 57">
+<meta property="og:description" content="מה הוזמן, מאיפה, ומה עוד נשאר להזמין — על גבי תוכניות החשמל.">
+<meta property="og:url" content="https://yaelavgil.github.io/lighting-map/">
+<meta property="og:image" content="https://yaelavgil.github.io/lighting-map/og-index.jpg">
+<meta property="og:image:secure_url" content="https://yaelavgil.github.io/lighting-map/og-index.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="תוכניות קומת קרקע וקומה עליונה עם נקודות התאורה">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="מפת תאורת אשל 57">
+<meta name="twitter:description" content="מה הוזמן, מאיפה, ומה עוד נשאר להזמין.">
+<meta name="twitter:image" content="https://yaelavgil.github.io/lighting-map/og-index.jpg">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="תאורה אשל 57">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#F6F1E7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1A17" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700;800&family=Heebo:wght@400;500;600;700&display=swap">
+<style>
+/* ===== התאמות מובייל ===== */
+html{-webkit-text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent; overscroll-behavior-y:contain}
+img{max-width:100%}
+@media (max-width:760px){
+  .wrap{padding-inline:12px}
+  .modal{max-height:92vh; max-height:92dvh; border-radius:16px; padding:16px}
+  .modal-back{padding:10px}
+  .zoom-toolbar button{width:38px; height:38px; font-size:19px}
+  .zoom-pct{font-size:12px; min-width:40px}
+  .stage-hint{font-size:11.5px; line-height:1.6}
+}
+@media (pointer:coarse){
+  .zoom-toolbar button{width:40px; height:40px}
+  .img-btn{padding:9px 13px; font-size:13px}
+}
+/* המפה במסך מלא — כניסה ויציאה נוחות בנייד */
+body.map-only{overflow:hidden}
+body.map-only .stage{padding:0; height:100dvh}
+body.map-only .stage-img-wrap{
+  width:auto; height:calc(100dvh - env(safe-area-inset-bottom) - 0px);
+  display:flex; align-items:center; justify-content:center; border-radius:0;
+}
+body.map-only .stage-hint{display:none}
+.map-fab{
+  position:fixed; inset-inline-start:14px; bottom:calc(env(safe-area-inset-bottom) + 14px);
+  z-index:40; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  border-radius:999px; padding:12px 18px; font:600 14px/1 "Heebo",sans-serif;
+  box-shadow:0 6px 20px rgba(0,0,0,.22); cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+}
+body.map-only .map-fab{display:none}
+.map-exit{
+  display:none; position:fixed; inset-inline:0; margin-inline:auto; width:max-content;
+  bottom:calc(env(safe-area-inset-bottom) + 14px); z-index:60;
+  border:0; background:var(--ink); color:var(--paper);
+  border-radius:999px; padding:13px 24px; font:700 15px/1 "Heebo",sans-serif;
+  box-shadow:0 8px 26px rgba(0,0,0,.4); cursor:pointer;
+}
+body.map-only .map-exit{display:block}
+/* ===== הגדלת תמונת מוצר ===== */
+.lightbox{
+  display:none; position:fixed; inset:0; z-index:90; background:rgba(10,9,7,.94);
+  align-items:center; justify-content:center; touch-action:none; overflow:hidden;
+}
+.lightbox.open{display:flex}
+.lightbox img{
+  max-width:100%; max-height:100%; object-fit:contain; will-change:transform;
+  -webkit-user-drag:none; user-select:none;
+}
+.lb-close{
+  position:absolute; top:calc(env(safe-area-inset-top) + 12px); inset-inline-start:12px;
+  width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,255,255,.16);
+  color:#fff; font-size:20px; cursor:pointer; backdrop-filter:blur(6px);
+}
+.lb-link{
+  position:absolute; inset-inline:0; margin-inline:auto; width:max-content;
+  bottom:calc(env(safe-area-inset-bottom) + 18px);
+  background:#fff; color:#1b1a17; text-decoration:none; border-radius:999px;
+  padding:13px 22px; font:700 15px/1 "Heebo",sans-serif; box-shadow:0 8px 26px rgba(0,0,0,.45);
+}
+.lb-hint{
+  position:absolute; top:calc(env(safe-area-inset-top) + 22px); inset-inline-end:16px;
+  color:rgba(255,255,255,.6); font:400 12px/1 "Heebo",sans-serif;
+}
+.modal-img.zoomable{cursor:zoom-in}
+.img-openlink{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  margin-top:8px; padding:11px 14px; border-radius:11px; text-decoration:none;
+  background:var(--accent-soft); color:var(--accent); font:600 13.5px/1 "Heebo",sans-serif;
+}
+</style>
+</head>
+<body>
 <style>
 :root{
   --paper:#F6F1E7; --ink:#262420; --ink-soft:#6B655A; --accent:#33456F; --accent-soft:#E4E9F2;
@@ -477,7 +582,8 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
       <span id="zoomPct" class="zoom-pct">100%</span>
     </div>
   </div>
-  <div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
+  <button class="map-exit" id="mapExitBtn">✕ סגירת המפה</button>
+<div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
 </div>
 
 <div class="list-headrow">
@@ -616,7 +722,8 @@ function applyZoom(animate){
   const pctEl=document.getElementById('zoomPct');
   if(pctEl) pctEl.textContent=Math.round(zoom*100)+'%';
 }
-function setZoom(newZoom, cx, cy){
+function setZoom(newZoom, cx, cy, animate){
+  if(animate===undefined) animate=true;
   const rect=stageWrap.getBoundingClientRect();
   const px = cx!=null ? cx-rect.left : rect.width/2;
   const py = cy!=null ? cy-rect.top : rect.height/2;
@@ -625,7 +732,7 @@ function setZoom(newZoom, cx, cy){
   const imgX=(px-panX)/prevZoom, imgY=(py-panY)/prevZoom;
   zoom=newZoom;
   panX=px-imgX*zoom; panY=py-imgY*zoom;
-  applyZoom(true);
+  applyZoom(animate);
 }
 function resetZoom(){ zoom=1; panX=0; panY=0; applyZoom(true); }
 const listEl=document.getElementById('list');
@@ -1350,7 +1457,7 @@ function openModal(k){
     <button class="modal-close" id="modalCloseBtn" aria-label="סגור">✕</button>
     <div class="img-wrap">
       ${modalSrc
-        ? `<img class="modal-img" src="${modalSrc}" alt="${d.item}">`
+        ? `<img class="modal-img zoomable" id="modalImgEl" src="${modalSrc}" alt="${esc(d.item)}">`
         : `<div class="modal-img empty"><span>💡</span><span class="hint">עדיין לא נבחר גוף תאורה לנקודה הזו</span></div>`}
       <div class="img-actions">
         <button class="img-btn" id="imgUploadBtn" type="button">📷 ${modalSrc?'החליפו תמונה':'הוסיפו תמונה'}</button>
@@ -1362,7 +1469,7 @@ function openModal(k){
     <input type="text" id="locInput" class="loc-input" value="${d.loc.replace(/"/g,'&quot;')}" placeholder="מיקום (למשל: מסדרון קומה ב׳)">
     <span class="status-pill ${d.status}"><span class="dot" style="background:currentColor"></span>${statusLabel}${isChosen?' · '+storeLabel(d.store):''}</span>
     <div class="mrow">כמות: <b>${d.qty}</b></div>
-    ${d.link? `<a class="buy-btn" href="${d.link}" target="_blank" rel="noopener">לצפייה ורכישה ←</a>` : ''}
+    ${d.link? `<a class="buy-btn" href="${esc(d.link)}" target="_blank" rel="noopener">לצפייה ורכישה באתר החנות ←</a>` : ''}
     <div class="reassign-wrap">
       <label>📝 הערות:</label>
       <textarea class="combo-input note-input" id="noteInput" rows="2" placeholder="הוסיפו הערה — למשל: לוודא גובה עם נופר, להזמין 2 רזרביים...">${(d.note||'').replace(/</g,'&lt;')}</textarea>
@@ -1533,6 +1640,10 @@ function openModal(k){
   input.addEventListener('input',()=>{ drawList(input.value); listEl2.classList.add('open'); });
   input.addEventListener('blur',()=>{ setTimeout(()=>listEl2.classList.remove('open'),120); });
 
+  (function(){
+    const mi=modalBody.querySelector('#modalImgEl');
+    if(mi) mi.addEventListener('click',function(){ openLightbox(mi.src, d.link||'', d.item); });
+  })();
   modalBody.querySelector('#modalCloseBtn').addEventListener('click', closeModal);
   const resetPosBtn=modalBody.querySelector('#resetPosBtn');
   if(resetPosBtn) resetPosBtn.addEventListener('click',()=>{
@@ -1596,6 +1707,7 @@ document.getElementById('mapOnlyBtn').addEventListener('click',()=>{
 });
 document.addEventListener('keydown',(e)=>{
   if(e.key!=='Escape') return;
+  if(document.getElementById('lightbox').classList.contains('open')){ closeLightbox(); return; }
   if(modalBack.classList.contains('open')){ closeModal(); return; }
   if(document.body.classList.contains('map-only')) setMapOnly(false);
 });
@@ -1610,22 +1722,106 @@ stageWrap.addEventListener('wheel',(e)=>{
 },{passive:false});
 
 let panStart=null;
+const stagePtrs=new Map();
+let pinchStart=null;
 stageWrap.addEventListener('pointerdown',(e)=>{
+  stagePtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(stagePtrs.size===2){
+    const a=[...stagePtrs.values()];
+    pinchStart={d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y), z:zoom};
+    if(panStart){ panStart=null; stageWrap.classList.remove('panning'); }
+    e.preventDefault();
+    return;
+  }
   if(zoom<=1.001 || addMode || e.target.closest('.pin')) return;
   e.preventDefault();
   panStart={x:e.clientX,y:e.clientY,px:panX,py:panY};
   stageWrap.classList.add('panning');
 });
 window.addEventListener('pointermove',(e)=>{
+  if(stagePtrs.has(e.pointerId)) stagePtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(stagePtrs.size>=2 && pinchStart && pinchStart.d>0){
+    const a=[...stagePtrs.values()];
+    const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+    setZoom(pinchStart.z*d/pinchStart.d,(a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2,false);
+    e.preventDefault();
+    return;
+  }
   if(!panStart) return;
   e.preventDefault();
   panX=panStart.px+(e.clientX-panStart.x);
   panY=panStart.py+(e.clientY-panStart.y);
   applyZoom(false);
 });
-window.addEventListener('pointerup',()=>{
-  if(panStart){ panStart=null; stageWrap.classList.remove('panning'); }
+function endStagePtr(e){
+  stagePtrs.delete(e.pointerId);
+  if(stagePtrs.size<2) pinchStart=null;
+  if(stagePtrs.size===0 && panStart){ panStart=null; stageWrap.classList.remove('panning'); }
+}
+window.addEventListener('pointerup',endStagePtr);
+window.addEventListener('pointercancel',endStagePtr);
+
+/* הקשה כפולה על המפה — התקרבות / חזרה */
+let lastStageTap=0;
+stageWrap.addEventListener('click',(e)=>{
+  if(addMode || e.target.closest('.pin') || e.target.closest('.zoom-toolbar')) return;
+  const now=Date.now();
+  if(now-lastStageTap<320){ setZoom(zoom>1.5?1:2.8, e.clientX, e.clientY); }
+  lastStageTap=now;
 });
+
+/* כניסה ויציאה מהמפה המלאה */
+document.getElementById('mapFabBtn').addEventListener('click',()=>setMapOnly(true));
+document.getElementById('mapExitBtn').addEventListener('click',()=>setMapOnly(false));
+
+/* ===== הגדלת תמונת מוצר ===== */
+const lbEl=document.getElementById('lightbox');
+const lbImg=document.getElementById('lbImg');
+const lbLink=document.getElementById('lbLinkBtn');
+let lz=1, lx=0, ly=0;
+function lbApply(){ lbImg.style.transform='translate('+lx+'px,'+ly+'px) scale('+lz+')'; }
+function openLightbox(src,href,alt){
+  lbImg.src=src; lbImg.alt=alt||'';
+  if(href){ lbLink.href=href; lbLink.hidden=false; } else { lbLink.hidden=true; }
+  lz=1; lx=0; ly=0; lbApply();
+  lbEl.classList.add('open');
+}
+function closeLightbox(){ lbEl.classList.remove('open'); lbImg.src=''; }
+document.getElementById('lbCloseBtn').addEventListener('click',closeLightbox);
+lbEl.addEventListener('click',(e)=>{ if(e.target===lbEl) closeLightbox(); });
+(function(){
+  const pts=new Map(); let pin=null, drag=null, tap=0;
+  lbEl.addEventListener('pointerdown',(e)=>{
+    if(e.target.closest('.lb-close,.lb-link')) return;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2){ const a=[...pts.values()]; pin={d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),z:lz}; drag=null; }
+    else if(lz>1.01) drag={x:e.clientX,y:e.clientY,px:lx,py:ly};
+  });
+  lbEl.addEventListener('pointermove',(e)=>{
+    if(pts.has(e.pointerId)) pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size>=2 && pin && pin.d>0){
+      const a=[...pts.values()];
+      lz=Math.max(1,Math.min(6,pin.z*Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)/pin.d));
+      if(lz<=1.01){ lx=0; ly=0; }
+      lbApply(); e.preventDefault(); return;
+    }
+    if(drag){ lx=drag.px+(e.clientX-drag.x); ly=drag.py+(e.clientY-drag.y); lbApply(); e.preventDefault(); }
+  },{passive:false});
+  function end(e){ pts.delete(e.pointerId); if(pts.size<2) pin=null; if(pts.size===0) drag=null; }
+  lbEl.addEventListener('pointerup',end);
+  lbEl.addEventListener('pointercancel',end);
+  lbImg.addEventListener('click',()=>{
+    const now=Date.now();
+    if(now-tap<320){ lz = lz>1.5?1:2.6; lx=0; ly=0; lbApply(); }
+    tap=now;
+  });
+  lbEl.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    lz=Math.max(1,Math.min(6,lz*(e.deltaY<0?1.15:1/1.15)));
+    if(lz<=1.01){ lx=0; ly=0; }
+    lbApply();
+  },{passive:false});
+})();
 
 mergeLegacy();
 renderStoreList();
@@ -1634,3 +1830,12 @@ render();
 if(location.hash==='#map') setMapOnly(true);
 boot();
 </script>
+<button class="map-fab" id="mapFabBtn">⛶ מפה על מסך מלא</button>
+<div class="lightbox" id="lightbox">
+  <img id="lbImg" alt="">
+  <button class="lb-close" id="lbCloseBtn" aria-label="סגירה">✕</button>
+  <span class="lb-hint">צביטה להגדלה · הקשה כפולה</span>
+  <a class="lb-link" id="lbLinkBtn" target="_blank" rel="noopener" hidden>לדף המוצר ←</a>
+</div>
+</body>
+</html>
