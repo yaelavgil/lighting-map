@@ -104,15 +104,15 @@ body.map-only .map-exit{display:block}
 }
 .nfk i{
   position:absolute; left:0; top:0; display:block;
-  width:calc(22px / var(--nz,1)); height:calc(22px / var(--nz,1));
-  margin:calc(-11px / var(--nz,1)) 0 0 calc(-11px / var(--nz,1));
-  border-radius:50%; border:calc(2.5px / var(--nz,1)) solid currentColor;
+  width:calc(13px / var(--nz,1)); height:calc(13px / var(--nz,1));
+  margin:calc(-6.5px / var(--nz,1)) 0 0 calc(-6.5px / var(--nz,1));
+  border-radius:50%; border:calc(2px / var(--nz,1)) solid currentColor;
   background:rgba(255,255,255,.55); cursor:pointer;
 }
 .nfk.ida{color:#C8386E} .nfk.mach{color:#0E8FA3} .nfk.ali{color:#4F9236}
 .nfn{
   position:absolute; transform:translate(50%,-50%); pointer-events:none;
-  font:700 calc(13px / var(--nz,1))/1.1 "Heebo",sans-serif; color:#8C2A3F;
+  font:700 calc(10.5px / var(--nz,1))/1.1 "Heebo",sans-serif; color:#8C2A3F;
   background:rgba(255,255,255,.9); border:calc(1px / var(--nz,1)) solid #8C2A3F;
   padding:calc(3px / var(--nz,1)) calc(7px / var(--nz,1));
   border-radius:calc(5px / var(--nz,1)); white-space:nowrap;
@@ -254,14 +254,14 @@ body.map-only .stage-hint{margin-top:5px}
 /* סמנים — הילה רכה ושקופה, לא מסתירה את התוכנית */
 /* סמנים — טבעת זוהרת סביב גוף התאורה עצמו; מרכז שקוף כדי שהשרטוט יישאר גלוי */
 .pin{
-  position:absolute; transform:translate(-50%,-50%); width:24px; height:24px; border-radius:50%;
+  position:absolute; transform:translate(-50%,-50%); width:17px; height:17px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:9px; font-weight:700; font-family:"Heebo"; font-variant-numeric:tabular-nums;
+  font-size:8px; font-weight:700; font-family:"Heebo"; font-variant-numeric:tabular-nums;
   padding:0; cursor:grab; touch-action:none; z-index:2;
   color:transparent; text-shadow:0 1px 2px rgba(0,0,0,.9);
   background:transparent;
   border:1.5px solid var(--ringC);
-  box-shadow:0 0 7px 1px var(--glowC), inset 0 0 7px 0 var(--glowC);
+  box-shadow:0 0 5px 1px var(--glowC), inset 0 0 5px 0 var(--glowC);
   transition:transform .16s ease, color .12s ease, box-shadow .16s ease, background .16s ease;
 }
 .pin.open{    --ringC:color-mix(in srgb, var(--open) 78%, transparent);    --glowC:color-mix(in srgb, var(--open) 42%, transparent) }
@@ -283,7 +283,7 @@ body.map-only .stage-hint{margin-top:5px}
   box-shadow:0 0 0 1px var(--card), 0 0 6px 1px var(--glowC);
 }
 .pin.has-img img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block }
-.pin.has-img:hover, .pin.has-img.active{ width:36px; height:36px; transform:translate(-50%,-50%) scale(1); box-shadow:0 0 0 1px var(--card), 0 2px 10px rgba(0,0,0,.35) }
+.pin.has-img:hover, .pin.has-img.active{ width:30px; height:30px; transform:translate(-50%,-50%) scale(1); box-shadow:0 0 0 1px var(--card), 0 2px 10px rgba(0,0,0,.35) }
 .pin.has-img.dragging{ transform:translate(-50%,-50%) scale(1.25) }
 /* הוזז ידנית — טבעת מקווקוות עדינה, בלי נקודה נפרדת */
 .pin.moved{ border-style:dashed }
