@@ -188,7 +188,7 @@ body.map-only .map-exit{display:block}
 .nofar-bar .nfchip[aria-pressed="false"]{opacity:.45}
 .nofar-bar .sw{width:10px; height:10px; border-radius:50%; border:2px solid currentColor; background:transparent}
 .nofar-bar .nfsep{width:1px; height:20px; background:var(--line); margin-inline:2px}
-.nofar-bar .nfchip.st[aria-pressed="true"]{background:var(--accent); color:var(--card); border-color:var(--accent); opacity:1}
+.nofar-bar .nfchip.vw[aria-pressed="true"]{background:var(--accent); color:var(--card); border-color:var(--accent); opacity:1}
 .nfk.mmk i{border-color:#B8862E !important; background:rgba(184,134,46,.3)}
 .nfk.mmk::before{
   content:'!'; position:absolute; left:0; top:0; color:#B8862E;
@@ -695,8 +695,6 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 
 <h2 class="section">מה נרכש, מה נותר לרכוש, ומה עוד צריך להחליט</h2>
 <div class="buckets" id="buckets"></div>
-<div class="shop" id="shopList"></div>
-<div class="gapbox" id="gapBox"></div>
 <div class="stage">
   <div class="stage-img-wrap" id="stageImgWrap">
     <div class="zoom-inner" id="zoomInner">
@@ -718,10 +716,10 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
   <button class="nfchip" data-nf="mach" aria-pressed="true"><span class="sw mach"></span>מחסני תאורה</button>
   <button class="nfchip" data-nf="ali" aria-pressed="true"><span class="sw ali"></span>עלי אקספרס</button>
   <span class="nfsep"></span>
-  <button class="nfchip st" data-st="all" aria-pressed="true">הכל</button>
-  <button class="nfchip st" data-st="toorder" aria-pressed="false">נותר לרכוש</button>
-  <button class="nfchip st" data-st="todecide" aria-pressed="false">להחליט</button>
-  <button class="nfchip st" data-st="mm" aria-pressed="false">אי־תאימות</button>
+  <button class="nfchip vw" data-view="all" aria-pressed="true">הכל</button>
+  <button class="nfchip vw" data-view="toorder" aria-pressed="false">נותר לרכוש</button>
+  <button class="nfchip vw" data-view="todecide" aria-pressed="false">להחליט</button>
+  <button class="nfchip vw" data-view="mm" aria-pressed="false">אי־תאימות</button>
   <span class="sep"></span>
   <button class="nfchip nfstate" data-st="done" aria-pressed="true"><span class="swf"></span>הוזמן <b id="cntDone">0</b></button>
   <button class="nfchip nfstate" data-st="todo" aria-pressed="true"><span class="swd"></span>נותר להזמין <b id="cntTodo">0</b></button>
@@ -729,6 +727,9 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 <button class="map-exit" id="mapExitBtn">✕ סגירת המפה</button>
 <div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
 </div>
+
+<div class="shop" id="shopList"></div>
+<div class="gapbox" id="gapBox"></div>
 
 <h2 class="section">הצעות מחיר ותשלומים</h2>
 <div class="qp">
@@ -2099,10 +2100,10 @@ document.getElementById('nfMake').addEventListener('click',function(){
 document.getElementById('nfToggle').addEventListener('click',function(){
   nofarOn=!nofarOn;
   this.setAttribute('aria-pressed', nofarOn?'true':'false');
-  document.querySelectorAll('#nofarBar [data-st]').forEach(function(b){
+  document.querySelectorAll('#nofarBar [data-view]').forEach(function(b){
   b.addEventListener('click',function(){
-    nfStatus=b.dataset.st;
-    document.querySelectorAll('#nofarBar [data-st]').forEach(function(o){
+    nfStatus=b.dataset.view;
+    document.querySelectorAll('#nofarBar [data-view]').forEach(function(o){
       o.setAttribute('aria-pressed', o===b?'true':'false'); });
     if(!nofarOn){ nofarOn=true; document.getElementById('nfToggle').setAttribute('aria-pressed','true'); }
     renderNofar();
@@ -2110,8 +2111,11 @@ document.getElementById('nfToggle').addEventListener('click',function(){
 });
 function showOnMap(st,sup){
   nfStatus=st;
+  document.querySelectorAll('#nofarBar [data-view]').forEach(function(o){
+    o.setAttribute('aria-pressed', o.dataset.view===st?'true':'false'); });
+  nofarStOff.done=false; nofarStOff.todo=false;
   document.querySelectorAll('#nofarBar [data-st]').forEach(function(o){
-    o.setAttribute('aria-pressed', o.dataset.st===st?'true':'false'); });
+    o.setAttribute('aria-pressed','true'); });
   if(sup){ ['ida','mach','ali'].forEach(function(k){ nofarOff[k]=(k!==sup); });
     document.querySelectorAll('#nofarBar [data-nf]').forEach(function(o){
       o.setAttribute('aria-pressed', nofarOff[o.dataset.nf]?'false':'true'); });
