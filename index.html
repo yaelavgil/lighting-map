@@ -658,6 +658,41 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
     <div class="total-sub" id="totalSub"></div>
   </div>
 </header>
+<h2 class="section">מה נרכש, מה נותר לרכוש, ומה עוד צריך להחליט</h2>
+<div class="buckets" id="buckets"></div>
+<div class="stage">
+  <div class="stage-img-wrap" id="stageImgWrap">
+    <div class="zoom-inner" id="zoomInner">
+      <img id="planImg" src="" alt="תוכנית קומה" draggable="false">
+      <div id="pins"></div>
+      <div id="nofarLayer"></div>
+    </div>
+    <div class="zoom-toolbar">
+      <button id="mapOnlyBtn" aria-label="מפה בלבד" title="מפה בלבד (מסך מלא)">⛶</button>
+      <button id="zoomInBtn" aria-label="הגדילו">＋</button>
+      <button id="zoomOutBtn" aria-label="הקטינו">－</button>
+      <button id="zoomResetBtn" aria-label="איפוס זום">⤢</button>
+      <span id="zoomPct" class="zoom-pct">100%</span>
+    </div>
+  </div>
+  <div class="nofar-bar" id="nofarBar">
+  <button class="nfchip" id="nfToggle" aria-pressed="true">◎ הסימון של נופר</button>
+  <button class="nfchip" data-nf="ida" aria-pressed="true"><span class="sw ida"></span>עידה</button>
+  <button class="nfchip" data-nf="mach" aria-pressed="true"><span class="sw mach"></span>מחסני תאורה</button>
+  <button class="nfchip" data-nf="ali" aria-pressed="true"><span class="sw ali"></span>עלי אקספרס</button>
+  <span class="nfsep"></span>
+  <button class="nfchip vw" data-view="all" aria-pressed="true">הכל</button>
+  <button class="nfchip vw" data-view="toorder" aria-pressed="false">נותר לרכוש</button>
+  <button class="nfchip vw" data-view="todecide" aria-pressed="false">להחליט</button>
+  <button class="nfchip vw" data-view="mm" aria-pressed="false">אי־תאימות</button>
+  <span class="sep"></span>
+  <button class="nfchip nfstate" data-st="done" aria-pressed="true"><span class="swf"></span>הוזמן <b id="cntDone">0</b></button>
+  <button class="nfchip nfstate" data-st="todo" aria-pressed="true"><span class="swd"></span>נותר להזמין <b id="cntTodo">0</b></button>
+</div>
+<button class="map-exit" id="mapExitBtn">✕ סגירת המפה</button>
+<div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
+</div>
+
 <div class="ordsum">
   <div class="ordbox got">
     <h3>✓ הוזמן ושולם</h3>
@@ -693,40 +728,6 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 
 <script type="application/json" id="map-data">{"v":3,"saved":{},"overrides":{},"custom":{"ground":[],"upper":[]},"stores":{},"quotes":[{"id":"q_ida_02046138","supplier":"ida","date":"2026-09-04","amount":6700,"note":"חשבונית 02/046138 · 22 יחידות · אספקה עד 30 ימי עבודה","link":"","by":"יעל","at":0}],"payments":[{"id":"pay_ida_02046138","supplier":"ida","date":"2026-09-04","amount":6700,"method":"כרטיס אשראי","note":"שולם במלואו · חשבונית 02/046138","by":"יעל","at":0}]}</script>
 
-<h2 class="section">מה נרכש, מה נותר לרכוש, ומה עוד צריך להחליט</h2>
-<div class="buckets" id="buckets"></div>
-<div class="stage">
-  <div class="stage-img-wrap" id="stageImgWrap">
-    <div class="zoom-inner" id="zoomInner">
-      <img id="planImg" src="" alt="תוכנית קומה" draggable="false">
-      <div id="pins"></div>
-      <div id="nofarLayer"></div>
-    </div>
-    <div class="zoom-toolbar">
-      <button id="mapOnlyBtn" aria-label="מפה בלבד" title="מפה בלבד (מסך מלא)">⛶</button>
-      <button id="zoomInBtn" aria-label="הגדילו">＋</button>
-      <button id="zoomOutBtn" aria-label="הקטינו">－</button>
-      <button id="zoomResetBtn" aria-label="איפוס זום">⤢</button>
-      <span id="zoomPct" class="zoom-pct">100%</span>
-    </div>
-  </div>
-  <div class="nofar-bar" id="nofarBar">
-  <button class="nfchip" id="nfToggle" aria-pressed="true">◎ הסימון של נופר</button>
-  <button class="nfchip" data-nf="ida" aria-pressed="true"><span class="sw ida"></span>עידה</button>
-  <button class="nfchip" data-nf="mach" aria-pressed="true"><span class="sw mach"></span>מחסני תאורה</button>
-  <button class="nfchip" data-nf="ali" aria-pressed="true"><span class="sw ali"></span>עלי אקספרס</button>
-  <span class="nfsep"></span>
-  <button class="nfchip vw" data-view="all" aria-pressed="true">הכל</button>
-  <button class="nfchip vw" data-view="toorder" aria-pressed="false">נותר לרכוש</button>
-  <button class="nfchip vw" data-view="todecide" aria-pressed="false">להחליט</button>
-  <button class="nfchip vw" data-view="mm" aria-pressed="false">אי־תאימות</button>
-  <span class="sep"></span>
-  <button class="nfchip nfstate" data-st="done" aria-pressed="true"><span class="swf"></span>הוזמן <b id="cntDone">0</b></button>
-  <button class="nfchip nfstate" data-st="todo" aria-pressed="true"><span class="swd"></span>נותר להזמין <b id="cntTodo">0</b></button>
-</div>
-<button class="map-exit" id="mapExitBtn">✕ סגירת המפה</button>
-<div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
-</div>
 
 <div class="shop" id="shopList"></div>
 <div class="gapbox" id="gapBox"></div>
