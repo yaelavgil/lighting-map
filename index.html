@@ -2100,7 +2100,11 @@ document.getElementById('nfMake').addEventListener('click',function(){
 document.getElementById('nfToggle').addEventListener('click',function(){
   nofarOn=!nofarOn;
   this.setAttribute('aria-pressed', nofarOn?'true':'false');
-  document.querySelectorAll('#nofarBar [data-view]').forEach(function(b){
+  document.querySelectorAll('#nofarBar [data-nf]').forEach(function(b){ b.hidden=!nofarOn; });
+  if(!nofarOn) closeNf();
+  renderNofar();
+});
+document.querySelectorAll('#nofarBar [data-view]').forEach(function(b){
   b.addEventListener('click',function(){
     nfStatus=b.dataset.view;
     document.querySelectorAll('#nofarBar [data-view]').forEach(function(o){
@@ -2124,10 +2128,6 @@ function showOnMap(st,sup){
   renderNofar();
   document.querySelector('.stage').scrollIntoView({behavior:'smooth',block:'start'});
 }
-document.querySelectorAll('#nofarBar [data-nf]').forEach(function(b){ b.hidden=!nofarOn; });
-  if(!nofarOn) closeNf();
-  renderNofar();
-});
 nfLoad();
 document.querySelectorAll('#nofarBar [data-nf]').forEach(function(b){
   b.addEventListener('click',function(){
