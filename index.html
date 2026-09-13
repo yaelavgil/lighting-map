@@ -554,7 +554,7 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
 .utility-btn:hover{background:var(--stage); color:var(--ink)}
 .utility-btn:disabled{opacity:.4; cursor:default; background:none}
 .utility-btn.danger:hover{background:var(--open-soft); color:var(--open)}
-@media (prefers-reduced-motion: reduce){ .progress>div,.pin{transition:none} .pin.pulse{animation:none} }
+@media (prefers-reduced-motion: reduce){ .progress>div,.pin{transition:none} .pin.breathe{animation:none} }
 
 .ordsum{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 6px}
 @media(max-width:760px){.ordsum{grid-template-columns:1fr}}
@@ -1591,11 +1591,9 @@ function addPin(k, label){
   const bought=!!saved[k];
   const status=bought?'done':d.status;
   const pin=document.createElement('button');
-  const pinSrc = status!=='open' ? imgSrcFor(d) : null;
-  pin.className='pin '+status+((!isCustom(k)&&overrides.pos[k])?' moved':'')+(status==='open'?' pulse':'')+(pinSrc?' has-img':'');
+  pin.className='pin '+status+(status==='open'?' breathe':'');
   pin.style.left=d.x+'%'; pin.style.top=d.y+'%';
-  if(pinSrc){ pin.innerHTML=`<img src="${pinSrc}" alt="">`; }
-  else { pin.textContent=label; }
+  pin.textContent=label;
   pin.setAttribute('aria-label',d.loc+': '+d.item);
   pin.dataset.k=k;
   if(!passFilter(baseBucket(k), baseStore(k), false)) pin.classList.add('fade-out');
