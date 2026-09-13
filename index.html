@@ -100,25 +100,17 @@ body.map-only .map-exit{display:block}
 #nofarLayer{position:absolute; inset:0; pointer-events:none}
 #nofarLayer.on{pointer-events:none}
 .nfk{
-  position:absolute; width:0; height:0; pointer-events:auto;
+  position:absolute; width:2.03%; aspect-ratio:1;
+  transform:translate(50%,-50%); pointer-events:none;
 }
 .nfk i{
-  position:absolute; left:0; top:0; display:block;
-  width:calc(13px / var(--nz,1)); height:calc(13px / var(--nz,1));
-  margin:calc(-6.5px / var(--nz,1)) 0 0 calc(-6.5px / var(--nz,1));
-  border-radius:50%; cursor:pointer;
+  position:absolute; inset:0; display:block; border-radius:50%;
+  border:calc(2px / var(--nz,1)) solid currentColor;
+  background:color-mix(in srgb, currentColor 14%, transparent);
+  pointer-events:auto; cursor:pointer;
 }
 /* עדיין לא הוזמן — טבעת חלולה ומקווקוות */
-.nfk.todo i{
-  border:calc(1.8px / var(--nz,1)) dashed currentColor;
-  background:rgba(255,255,255,.5);
-}
 /* כבר הוזמן — עיגול מלא עם וי */
-.nfk.done i{
-  border:calc(1.5px / var(--nz,1)) solid #fff;
-  background:currentColor;
-  box-shadow:0 0 0 calc(1.2px / var(--nz,1)) currentColor;
-}
 .nfk.done i::after{
   content:''; position:absolute; inset:0; margin:auto;
   width:calc(4.4px / var(--nz,1)); height:calc(2.2px / var(--nz,1));
@@ -127,13 +119,7 @@ body.map-only .map-exit{display:block}
   transform:rotate(-45deg) translate(calc(0.4px / var(--nz,1)), calc(-0.7px / var(--nz,1)));
 }
 .nfk.hide{display:none}
-.nfk.wait i{border-style:dotted; border-width:calc(2.4px / var(--nz,1)); background:rgba(255,255,255,.85)}
-.nfk.wait::after{
-  content:'?'; position:absolute; left:0; top:0;
-  font:700 calc(7px / var(--nz,1))/1 "Heebo",sans-serif; color:currentColor;
-  transform:translate(calc(-2px / var(--nz,1)), calc(-3.5px / var(--nz,1)));
-  pointer-events:none;
-}
+.nfk.wait i{border-style:dotted}
 .nfpop .mdl{margin-top:9px; padding:9px 12px; border-radius:10px; font-size:13.5px;
   background:var(--done-soft); color:var(--ink)}
 .nfpop .mdl.q{background:var(--pending-soft)}
@@ -168,7 +154,12 @@ body.map-only .map-exit{display:block}
 .allocrow.full .gp{display:none}
 .nfpop .note{margin-top:10px; padding:10px 12px; border-radius:10px;
   background:var(--pending-soft); color:var(--ink); font-size:13.5px; line-height:1.45}
-.nfk.ida{color:#C8386E} .nfk.mach{color:#0E8FA3} .nfk.ali{color:#4F9236}
+.nfk.ok{color:#2E7D53}
+.nfk.no{color:#C0392B}
+:root:not([data-theme="light"]) .nfk.ok{color:#5FBF8C}
+:root:not([data-theme="light"]) .nfk.no{color:#E8776A}
+:root[data-theme="dark"] .nfk.ok{color:#5FBF8C}
+:root[data-theme="dark"] .nfk.no{color:#E8776A}
 .nfn{
   position:absolute; transform:translate(50%,-50%); pointer-events:none;
   font:700 calc(10.5px / var(--nz,1))/1.1 "Heebo",sans-serif; color:#8C2A3F;
@@ -204,23 +195,23 @@ body.map-only .nofar-bar{bottom:calc(env(safe-area-inset-bottom) + 62px)}
   background:currentColor; opacity:.5; pointer-events:auto; cursor:pointer;
 }
 .nfrail .sp{
-  position:absolute; width:calc(13px / var(--nz,1)); height:calc(13px / var(--nz,1));
-  margin:calc(-6.5px / var(--nz,1)) 0 0 calc(-6.5px / var(--nz,1));
-  border-radius:50%; border:calc(2.5px / var(--nz,1)) solid currentColor;
-  background:rgba(255,255,255,.85); pointer-events:auto; cursor:pointer;
+  position:absolute; width:2.03%; aspect-ratio:1; transform:translate(50%,-50%); top:0;
+  border-radius:50%; border:calc(2px / var(--nz,1)) solid currentColor;
+  background:color-mix(in srgb, currentColor 14%, transparent);
+  pointer-events:auto; cursor:pointer;
 }
-.nfrail.ida{color:#C8386E} .nfrail.mach{color:#0E8FA3} .nfrail.ali{color:#4F9236}
+.nfrail.ok{color:#2E7D53}
+.nfrail.no{color:#C0392B}
+:root:not([data-theme="light"]) .nfrail.ok{color:#5FBF8C}
+:root:not([data-theme="light"]) .nfrail.no{color:#E8776A}
+:root[data-theme="dark"] .nfrail.ok{color:#5FBF8C}
+:root[data-theme="dark"] .nfrail.no{color:#E8776A}
 .nfrail.sel .bar{opacity:.95}
 .nfpop .parts{margin-top:10px; border:1px solid var(--line); border-radius:10px; overflow:hidden}
 .nfpop .parts .ph{background:var(--stage); padding:7px 11px; font:700 12.5px/1 "Heebo",sans-serif; color:var(--ink-soft)}
 .nfpop .parts .pr{display:flex; gap:10px; padding:7px 11px; border-top:1px dashed var(--line); font-size:13.5px}
 .nfpop .parts .pr b{font-variant-numeric:tabular-nums; color:var(--accent); min-width:26px}
-.nfk.mmk i{border-color:#B8862E !important; background:rgba(184,134,46,.3)}
-.nfk.mmk::before{
-  content:'!'; position:absolute; left:0; top:0; color:#B8862E;
-  font:800 calc(9px / var(--nz,1))/1 "Heebo",sans-serif;
-  transform:translate(calc(3px / var(--nz,1)), calc(-11px / var(--nz,1))); pointer-events:none;
-}
+.nfk.mmk i{box-shadow:0 0 0 calc(2px / var(--nz,1)) #B8862E}
 .gapbox{background:var(--pending-soft); border:1px solid var(--pending); border-radius:14px; padding:14px 15px; margin:12px 0}
 .gapbox h4{margin:0 0 8px; font:700 16px/1.2 "Rubik","Heebo",sans-serif}
 .gaprow{padding:9px 0; border-bottom:1px dashed var(--line); font-size:14px}
@@ -2077,7 +2068,7 @@ function renderNofar(){
     var e;
     if(p.seg){
       e=document.createElement('div');
-      e.className='nfrail '+p.s+(p.mm?' mmk':'');
+      e.className='nfrail '+(p.st==='bought'?'ok':'no')+(p.mm?' mmk':'');
       var x1=p.seg[0],y1=p.seg[1],x2=p.seg[2],y2=p.seg[3];
       var lo=Math.min(x1,x2), hi=Math.max(x1,x2);
       e.style.insetInlineStart=lo+'%'; e.style.top=y1+'%';
@@ -2088,12 +2079,13 @@ function renderNofar(){
       for(var q=0;q<n;q++){
         var sp=document.createElement('div'); sp.className='sp';
         sp.style.insetInlineStart=((q+0.5)/n*100)+'%'; sp.style.top='0';
+        sp.style.width=(2.03/(hi-lo)*100)+'%';
         e.appendChild(sp);
       }
       e.addEventListener('click',function(ev){ ev.stopPropagation(); openNf(p); });
     } else {
       e=document.createElement('div');
-      e.className='nfk '+p.s+' '+(done?'done':'todo')+(p.nt?' wait':'')+(p.mm?' mmk':'');
+      e.className='nfk '+(p.st==='bought'?'ok':'no')+(p.nt?' wait':'')+(p.mm?' mmk':'');
       e.style.insetInlineStart=p.x+'%'; e.style.top=p.y+'%';
       e.innerHTML='<i></i>';
       e.addEventListener('click',function(ev){ ev.stopPropagation(); openNf(p); });
