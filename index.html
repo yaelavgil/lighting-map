@@ -188,6 +188,14 @@ body.map-only .map-exit{display:block}
 .nofar-bar .nfchip[aria-pressed="false"]{opacity:.45}
 .nofar-bar .sw{width:10px; height:10px; border-radius:50%; border:2px solid currentColor; background:transparent}
 .nofar-bar .nfsep{width:1px; height:20px; background:var(--line); margin-inline:2px}
+.nofar-bar{flex-direction:column; align-items:stretch; gap:6px}
+.frow{display:flex; align-items:center; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px}
+.frow::-webkit-scrollbar{display:none}
+.flab{flex:0 0 auto; font-size:11.5px; font-weight:700; color:var(--ink-soft); min-width:34px}
+.nfchip b{font-variant-numeric:tabular-nums; opacity:.75; font-weight:700}
+.sw.none{border-color:var(--ink-soft); background:repeating-linear-gradient(45deg,transparent,transparent 2px,currentColor 2px,currentColor 3px)}
+.pin.fade-out{display:none!important}
+body.map-only .nofar-bar{bottom:calc(env(safe-area-inset-bottom) + 62px)}
 .nofar-bar .nfchip.vw[aria-pressed="true"]{background:var(--accent); color:var(--card); border-color:var(--accent); opacity:1}
 .nfk.mmk i{border-color:#B8862E !important; background:rgba(184,134,46,.3)}
 .nfk.mmk::before{
@@ -676,18 +684,23 @@ footer{margin-top:32px; color:var(--ink-soft); font-size:12px; border-top:1px so
     </div>
   </div>
   <div class="nofar-bar" id="nofarBar">
-  <button class="nfchip" id="nfToggle" aria-pressed="true">◎ הסימון של נופר</button>
-  <button class="nfchip" data-nf="ida" aria-pressed="true"><span class="sw ida"></span>עידה</button>
-  <button class="nfchip" data-nf="mach" aria-pressed="true"><span class="sw mach"></span>מחסני תאורה</button>
-  <button class="nfchip" data-nf="ali" aria-pressed="true"><span class="sw ali"></span>עלי אקספרס</button>
-  <span class="nfsep"></span>
-  <button class="nfchip vw" data-view="all" aria-pressed="true">הכל</button>
-  <button class="nfchip vw" data-view="toorder" aria-pressed="false">נותר לרכוש</button>
-  <button class="nfchip vw" data-view="todecide" aria-pressed="false">להחליט</button>
-  <button class="nfchip vw" data-view="mm" aria-pressed="false">אי־תאימות</button>
-  <span class="sep"></span>
-  <button class="nfchip nfstate" data-st="done" aria-pressed="true"><span class="swf"></span>הוזמן <b id="cntDone">0</b></button>
-  <button class="nfchip nfstate" data-st="todo" aria-pressed="true"><span class="swd"></span>נותר להזמין <b id="cntTodo">0</b></button>
+  <div class="frow">
+    <span class="flab">מצב</span>
+    <button class="nfchip vw" data-view="all" aria-pressed="true">הכל <b data-c="all">0</b></button>
+    <button class="nfchip vw" data-view="bought" aria-pressed="false">הוזמן <b data-c="bought">0</b></button>
+    <button class="nfchip vw" data-view="toorder" aria-pressed="false">נותר להזמין <b data-c="toorder">0</b></button>
+    <button class="nfchip vw" data-view="todecide" aria-pressed="false">להחליט <b data-c="todecide">0</b></button>
+    <button class="nfchip vw" data-view="mm" aria-pressed="false">אי־תאימות <b data-c="mm">0</b></button>
+  </div>
+  <div class="frow">
+    <span class="flab">חנות</span>
+    <button class="nfchip" data-nf="ida" aria-pressed="true"><span class="sw ida"></span>עידה <b data-s="ida">0</b></button>
+    <button class="nfchip" data-nf="mach" aria-pressed="true"><span class="sw mach"></span>מחסני תאורה <b data-s="mach">0</b></button>
+    <button class="nfchip" data-nf="ali" aria-pressed="true"><span class="sw ali"></span>עלי אקספרס <b data-s="ali">0</b></button>
+    <button class="nfchip" data-nf="none" aria-pressed="true"><span class="sw none"></span>לא משויך <b data-s="none">0</b></button>
+    <button class="nfchip" id="nfToggle" aria-pressed="true">◎ סימון נופר</button>
+  </div>
+
 </div>
 <button class="map-exit" id="mapExitBtn">✕ סגירת המפה</button>
 <div class="stage-hint">גלגלת עכבר / קביעה כדי להתקרב · גררו רקע כשמוגדל כדי לנוע · גררו סמן כדי למקם אותו מחדש · לחיצה רגילה פותחת פרטים · <a href="#" id="resetAllPosBtn" class="reset-all-link">איפוס כל המיקומים שהוזזו ידנית לברירת המחדל</a></div>
@@ -1583,6 +1596,7 @@ function addPin(k, label){
   else { pin.textContent=label; }
   pin.setAttribute('aria-label',d.loc+': '+d.item);
   pin.dataset.k=k;
+  if(!passFilter(baseBucket(k), baseStore(k), false)) pin.classList.add('fade-out');
   attachDrag(pin,k);
   pinsEl.appendChild(pin);
 }
@@ -1595,6 +1609,7 @@ function renderPins(){
 function render(){
   planImg.src = floor==='ground'?GROUND_IMG:UPPER_IMG;
   if(typeof renderNofar==='function') renderNofar();
+  if(typeof updateFilterCounts==='function') updateFilterCounts();
   listTitle.textContent = 'פירוט — '+(floor==='ground'?'קומת קרקע':'קומה עליונה');
   resetZoom();
   renderList();
@@ -2001,7 +2016,21 @@ const NF_SUP={ida:'הבית של עידה',mach:'מחסני תאורה',ali:'ע�
 const nofarLayer=document.getElementById('nofarLayer');
 let nofarOn=true;
 let nfStatus='all';
-const nofarOff={ida:false,mach:false,ali:false};
+const STORE_KEY={ida:'ida',mahsanei:'mach',ali:'ali',turkiz:'none',open:'none'};
+function baseBucket(k){
+  const d=effective(k), bought=!!saved[k];
+  if(bought || d.status==='done') return 'bought';
+  if(d.status==='pending') return 'toorder';
+  return 'todecide';
+}
+function baseStore(k){ const d=effective(k); return STORE_KEY[d.store]||'none'; }
+function passFilter(bucket,store,isMismatch){
+  if(nofarOff[store]) return false;
+  if(nfStatus==='all') return true;
+  if(nfStatus==='mm') return !!isMismatch;
+  return bucket===nfStatus;
+}
+const nofarOff={ida:false,mach:false,ali:false,none:false};
 const nofarStOff={done:false,todo:false};
 let nfCur=null;
 /* מצב ההזמנה נשמר במאגר המשותף — כל שינוי מהדף מתעדכן אצל שניכם */
@@ -2023,12 +2052,9 @@ function renderNofar(){
   nofarLayer.innerHTML='';
   if(!nofarOn) return;
   NOFAR.m.forEach(function(p){
-    if(p.f!==floor || nofarOff[p.s]) return;
-    if(nfStatus==='mm' && !p.mm) return;
-    if(nfStatus!=='all' && nfStatus!=='mm' && p.st!==nfStatus) return;
+    if(p.f!==floor) return;
+    if(!passFilter(p.st, p.s, p.mm)) return;
     const done=!!nfOrd[p.i];
-    if(done && nofarStOff.done) return;
-    if(!done && nofarStOff.todo) return;
     const e=document.createElement('div');
     e.className='nfk '+p.s+' '+(done?'done':'todo')+(p.nt?' wait':'')+(p.mm?' mmk':'');
     e.style.insetInlineStart=p.x+'%'; e.style.top=p.y+'%';
@@ -2105,13 +2131,26 @@ document.getElementById('nfToggle').addEventListener('click',function(){
   if(!nofarOn) closeNf();
   renderNofar();
 });
+function refreshMap(){ renderNofar(); renderPins(); updateFilterCounts(); }
+function updateFilterCounts(){
+  const data = floor==='ground'?GROUND:UPPER;
+  const bk={all:0,bought:0,toorder:0,todecide:0,mm:0};
+  const st={ida:0,mach:0,ali:0,none:0};
+  data.forEach(function(_,i){ const k=itemKey(floor,i);
+    bk[baseBucket(k)]++; bk.all++; st[baseStore(k)]++; });
+  customPoints[floor].forEach(function(cp){ const k=customKey(floor,cp.id);
+    bk[baseBucket(k)]++; bk.all++; st[baseStore(k)]++; });
+  if(nofarOn) NOFAR.m.forEach(function(p){ if(p.f!==floor) return;
+    bk[p.st]++; bk.all++; if(p.mm) bk.mm++; st[p.s]++; });
+  document.querySelectorAll('#nofarBar [data-c]').forEach(function(e){ e.textContent=bk[e.dataset.c]||0; });
+  document.querySelectorAll('#nofarBar [data-s]').forEach(function(e){ e.textContent=st[e.dataset.s]||0; });
+}
 document.querySelectorAll('#nofarBar [data-view]').forEach(function(b){
   b.addEventListener('click',function(){
     nfStatus=b.dataset.view;
     document.querySelectorAll('#nofarBar [data-view]').forEach(function(o){
       o.setAttribute('aria-pressed', o===b?'true':'false'); });
-    if(!nofarOn){ nofarOn=true; document.getElementById('nfToggle').setAttribute('aria-pressed','true'); }
-    renderNofar();
+    refreshMap();
   });
 });
 function showOnMap(st,sup){
@@ -2135,7 +2174,7 @@ document.querySelectorAll('#nofarBar [data-nf]').forEach(function(b){
     const k=b.dataset.nf;
     nofarOff[k]=!nofarOff[k];
     b.setAttribute('aria-pressed', nofarOff[k]?'false':'true');
-    renderNofar();
+    refreshMap();
   });
 });
 
