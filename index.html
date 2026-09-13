@@ -371,22 +371,26 @@ body.map-only .stage-hint{margin-top:5px}
 /* סמנים — הילה רכה ושקופה, לא מסתירה את התוכנית */
 /* סמנים — טבעת זוהרת סביב גוף התאורה עצמו; מרכז שקוף כדי שהשרטוט יישאר גלוי */
 .pin{
-  position:absolute; transform:translate(-50%,-50%); width:17px; height:17px; border-radius:50%;
+  position:absolute; transform:translate(-50%,-50%);
+  width:2.03%; aspect-ratio:1; height:auto; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:8px; font-weight:700; font-family:"Heebo"; font-variant-numeric:tabular-nums;
+  font-size:var(--pinfs,7px); font-weight:700; font-family:"Heebo"; font-variant-numeric:tabular-nums;
   padding:0; cursor:grab; touch-action:none; z-index:2;
   color:transparent; text-shadow:0 1px 2px rgba(0,0,0,.9);
   background:transparent;
-  border:1.5px solid var(--ringC);
-  box-shadow:0 0 5px 1px var(--glowC), inset 0 0 5px 0 var(--glowC);
-  transition:transform .16s ease, color .12s ease, box-shadow .16s ease, background .16s ease;
+  border:calc(1.5px / var(--nz,1)) solid var(--ringC);
+  box-shadow:0 0 calc(4px / var(--nz,1)) calc(1px / var(--nz,1)) var(--glowC);
+  transition:color .12s ease, background .16s ease;
 }
+/* שטח נגיעה נוח בלי להגדיל את העיגול עצמו */
+.pin::after{content:''; position:absolute; inset:-110%; border-radius:50%}
 .pin.open{    --ringC:color-mix(in srgb, var(--open) 78%, transparent);    --glowC:color-mix(in srgb, var(--open) 42%, transparent) }
 .pin.pending{ --ringC:color-mix(in srgb, var(--pending) 78%, transparent); --glowC:color-mix(in srgb, var(--pending) 40%, transparent) }
 .pin.done{    --ringC:color-mix(in srgb, var(--done) 72%, transparent);    --glowC:color-mix(in srgb, var(--done) 32%, transparent) }
-.pin:hover, .pin.active{transform:translate(-50%,-50%) scale(1.32); z-index:6; color:#fff; background:var(--ringC)}
+.pin.active{z-index:6; color:#fff; background:var(--ringC)}
+@media (hover:hover){.pin:hover{z-index:6; color:#fff; background:var(--ringC)}}
 .pin:focus-visible{outline:2px solid var(--accent); outline-offset:2px; color:#fff}
-.pin.dragging{cursor:grabbing; transform:translate(-50%,-50%) scale(1.36); z-index:10; color:#fff; background:var(--ringC)}
+.pin.dragging{cursor:grabbing; z-index:10; color:#fff; background:var(--ringC)}
 /* ההבהוב — נראה כאילו גוף התאורה עצמו נדלק וכבה */
 @keyframes pinGlow{
   0%,100%{ box-shadow:0 0 3px 0 var(--glowC), inset 0 0 3px 0 var(--glowC); border-color:color-mix(in srgb, var(--open) 45%, transparent) }
@@ -966,6 +970,7 @@ function applyZoom(animate){
   zoomInner.classList.toggle('animate',!!animate);
   stageWrap.classList.toggle('zoomed', zoom>1.001);
   if(typeof nofarLayer!=='undefined' && nofarLayer) nofarLayer.style.setProperty('--nz', zoom);
+  if(typeof pinsEl!=='undefined' && pinsEl) pinsEl.style.setProperty('--nz', zoom);
   const pctEl=document.getElementById('zoomPct');
   if(pctEl) pctEl.textContent=Math.round(zoom*100)+'%';
 }
@@ -1613,6 +1618,8 @@ function addPin(k, label){
 function renderPins(){
   const data = floor==='ground'?GROUND:UPPER;
   pinsEl.innerHTML='';
+  const lw=pinsEl.clientWidth||zoomInner.clientWidth||0;
+  if(lw) pinsEl.style.setProperty('--pinfs', (lw*0.0105)+'px');
   data.forEach((_,i)=>{ addPin(itemKey(floor,i), i+1); });
   customPoints[floor].forEach(cp=>{ addPin(customKey(floor,cp.id), '+'); });
 }
